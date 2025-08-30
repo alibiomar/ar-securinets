@@ -22,7 +22,6 @@
 
         body {
             font-family: 'Orbitron', monospace;
-            overflow: hidden;
             background: #000;
         }
 
@@ -235,7 +234,6 @@
     width: 100vw !important;
     height: 100vh !important;
     object-fit: cover !important;
-    overflow: hidden;
 }
 
     </style>
@@ -290,19 +288,20 @@
         >
             <!-- Your GLB Model -->
             <a-entity
-                id="cyber-entity"
-                gltf-model="#cyberpunk-model"
-                position="0 0 0"
-                rotation="0 -180 0"
-                scale="1 1 1"
-                animation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear"
-                animation__float="property: position; to: 0 1.2 0; dir: alternate; dur: 3000; loop: true; easing: easeInOutSine"
-                animation__scale="property: scale; from: 0.1 0.1 0.1; to: 1 1 1; dur: 1000; easing: easeOutElastic"
-                visible="false"
-            >
+    id="cyber-entity"
+        gltf-model="#cyberpunk-model"
+        position="0 0 0"
+        rotation="0 0 -180"
+        scale="1 1 1"
+        material="color: #29ed00; shader: flat"
+        animation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear"
+        animation__float="property: position; to: 0 1.2 0; dir: alternate; dur: 3000; loop: true; easing: easeInOutSine"
+        animation__scale="property: scale; from: 0.1 0.1 0.1; to: 1 1 1; dur: 1000; easing: easeOutElastic"
+        visible="false">
+    </a-entity>
 
 
-            </a-entity>
+
         </a-marker>
 
         <!-- Camera -->
