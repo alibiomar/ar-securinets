@@ -349,8 +349,14 @@
 
         <!-- Custom Pattern Marker -->
         <a-marker 
-            type="pattern" 
-            url="pattern-logoSecurinets.patt">
+            preset="hiro" 
+            id="main-marker"
+            markerhandler
+            smooth="true"
+            smoothCount="5"
+            smoothTolerance="0.01"
+            smoothThreshold="2"
+        >
 
             <!-- Primary GLB Model -->
             <a-entity
