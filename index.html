@@ -212,22 +212,14 @@
             }
         }
 
-        a-scene {
-            display: block !important;
-            object-fit: cover !important; /* fill screen without weird zoom */
-            width: 100% !important;
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            z-index: 1 !important;
-        }
+
         video {
             object-fit: cover !important; /* fill screen without weird zoom */
-            height: 100vh !important;
+            width: 100vw !important;
             position: fixed !important;
             top: 0 !important;
             left: 0 !important;
-            z-index: 1 !important;
+            z-index: -1 !important;
         }
 
     </style>
