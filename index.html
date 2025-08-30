@@ -8,8 +8,9 @@
 
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <title>Securinets ENIT</title>
-    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
+<script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
         
@@ -245,7 +246,6 @@
 <a-scene
     embedded
     arjs="sourceType: webcam; 
-          facingMode: environment; 
           videoTexture: true; 
           debugUIEnabled: false; 
           detectionMode: mono;"
@@ -294,7 +294,6 @@
     <script>
         let markerFound = false;
 
-        THREEx.ArToolkitContext.baseURL = './';
 
         navigator.mediaDevices.getUserMedia({
             video: {
