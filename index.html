@@ -2,14 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-
+    <meta name="mobile-web-app-capable" content="yes">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <title>Securinets ENIT</title>
-<script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
+    <title>Securinets ENIT - AR Experience</title>
+    
+    <!-- AR.js Dependencies -->
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
@@ -84,7 +85,15 @@
             100% { transform: rotate(360deg); }
         }
 
-
+        .loading-title {
+            color: #29ed00;
+            font-size: 24px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            animation: neonGlow 2s ease-in-out infinite;
+            margin-bottom: 10px;
+        }
 
         .loading-subtitle {
             color: #C400ED;
@@ -145,7 +154,7 @@
 
         #info-panel h1 {
             margin: 0 0 10px 0;
-            font-size: 1em;
+            font-size: 1.2em;
             font-weight: 900;
             color: #C400ED;
             text-transform: uppercase;
@@ -155,9 +164,32 @@
 
         #info-panel p {
             margin: 0;
-            font-size: 0.5em;
+            font-size: 0.8em;
             opacity: 0.9;
             font-weight: 400;
+        }
+
+        #status-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(26, 26, 26, 0.9);
+            border: 2px solid #C400ED;
+            border-radius: 25px;
+            padding: 10px 20px;
+            color: #C400ED;
+            font-size: 0.8em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            backdrop-filter: blur(10px);
+        }
+
+        #status-indicator.active {
+            border-color: #29ed00;
+            color: #29ed00;
+            box-shadow: 0 0 20px rgba(41, 237, 0, 0.5);
         }
 
         /* Cyberpunk corners */
@@ -212,24 +244,65 @@
             }
         }
 
+        /* AR Scene Styling */
         a-scene {
             display: block !important;
-            object-fit: cover !important; /* fill screen without weird zoom */
             width: 100% !important;
+            height: 100% !important;
             position: fixed !important;
             top: 0 !important;
             left: 0 !important;
             z-index: 1 !important;
         }
+
         video {
-            object-fit: cover !important; /* fill screen without weird zoom */
+            object-fit: cover !important;
             height: 100vh !important;
+            width: 100vw !important;
             position: fixed !important;
             top: 0 !important;
             left: 0 !important;
             z-index: -1 !important;
         }
 
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            #info-panel {
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                padding: 15px;
+            }
+            
+            #info-panel h1 {
+                font-size: 1em;
+            }
+            
+            #info-panel p {
+                font-size: 0.7em;
+            }
+            
+            .corner {
+                width: 30px;
+                height: 30px;
+            }
+            
+            .corner.top-left, .corner.top-right {
+                top: 20px;
+            }
+            
+            .corner.bottom-left, .corner.bottom-right {
+                bottom: 20px;
+            }
+            
+            .corner.top-left, .corner.bottom-left {
+                left: 20px;
+            }
+            
+            .corner.top-right, .corner.bottom-right {
+                right: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -237,14 +310,19 @@
     <div id="loading-screen">
         <div class="cyber-grid"></div>
         <div class="loading-spinner"></div>
-        <div class="loading-subtitle">Initializing AR Systems...</div>
+        <div class="loading-title">SECURINETS</div>
+        <div class="loading-subtitle">Initializing AR Neural Network...</div>
     </div>
 
     <!-- UI Overlay -->
     <div id="ui-overlay">
         <div id="info-panel">
-            <h1>Welcome to Securinets</h1>
-            <p>Point camera at Hiro marker to deploy digital entity</p>
+            <h1>🛡️ Securinets ENIT</h1>
+            <p>Point your camera at the Securinets marker to activate the digital entity</p>
+        </div>
+
+        <div id="status-indicator">
+            Scanning for markers...
         </div>
 
         <!-- Cyberpunk corner decorations -->
@@ -255,39 +333,104 @@
     </div>
 
     <!-- AR.js Scene -->
-<a-scene embedded vr-mode-ui="enabled: false;" arjs="debugUIEnabled: false;">
-
-
+    <a-scene 
+        embedded 
+        vr-mode-ui="enabled: false;" 
+        arjs="debugUIEnabled: false; sourceType: webcam; displayWidth: 1280; displayHeight: 960;"
+        renderer="logarithmicDepthBuffer: true; colorManagement: true; sortObjects: true;">
 
         <!-- Assets -->
         <a-assets>
-            <!-- Replace with your actual .glb file -->
+            <!-- GLB Model Asset -->
             <a-asset-item 
                 id="cyberpunk-model" 
-                src="/logo.glb"
+                src="logo.glb"
                 crossorigin="anonymous">
             </a-asset-item>
         </a-assets>
 
-        <!-- Hiro Marker with Cyberpunk GLB Model -->
+        <!-- Custom Pattern Marker -->
         <a-marker 
-            preset="hiro" 
-            id="main-marker"
+            type="pattern" 
+            url="pattern-logoSecurinets.patt"
             markerhandler
-            smooth="true"
-            smoothCount="5"
-            smoothTolerance="0.01"
-            smoothThreshold="2"
-        >
-            <!-- Your GLB Model with Green Color Override -->
+            id="main-marker">
+
+            <!-- Primary GLB Model -->
             <a-entity
                 id="cyber-entity"
                 gltf-model="#cyberpunk-model"
-                position="0 0 0"
+                position="0 0.5 0"
                 rotation="0 0 0"
-                scale="1 1 1"
+                scale="0.8 0.8 0.8"
                 visible="false"
-                green-glow>
+                green-glow
+                animation__float="property: position; to: 0 1 0; dur: 2000; dir: alternate; loop: true; easing: easeInOutSine">
+            </a-entity>
+
+            <!-- Fallback Geometric Model (if GLB fails) -->
+            <a-entity
+                id="fallback-cube"
+                visible="false">
+                
+                <!-- Central rotating cube -->
+                <a-box
+                    position="0 0.5 0"
+                    width="0.8"
+                    height="0.8"
+                    depth="0.8"
+                    color="#29ed00"
+                    material="emissive: #003300; emissiveIntensity: 0.3; transparent: true; opacity: 0.9"
+                    animation__rotate="property: rotation; to: 360 360 0; dur: 4000; loop: true; easing: linear"
+                    animation__float="property: position; to: 0 1 0; dur: 2000; dir: alternate; loop: true; easing: easeInOutSine">
+                </a-box>
+
+                <!-- Orbiting particles -->
+                <a-sphere
+                    position="1.5 0.5 0"
+                    radius="0.1"
+                    color="#C400ED"
+                    material="emissive: #C400ED; emissiveIntensity: 0.5"
+                    animation__orbit="property: rotation; to: 0 360 0; dur: 3000; loop: true; easing: linear">
+                </a-sphere>
+
+                <a-sphere
+                    position="-1.5 0.5 0"
+                    radius="0.1"
+                    color="#C400ED"
+                    material="emissive: #C400ED; emissiveIntensity: 0.5"
+                    animation__orbit="property: rotation; to: 0 -360 0; dur: 3000; loop: true; easing: linear">
+                </a-sphere>
+
+                <!-- Glowing ring -->
+                <a-ring
+                    position="0 0 0"
+                    radius-inner="1.2"
+                    radius-outer="1.4"
+                    color="#29ed00"
+                    material="transparent: true; opacity: 0.6; emissive: #29ed00; emissiveIntensity: 0.3"
+                    rotation="90 0 0"
+                    animation__pulse="property: scale; to: 1.2 1.2 1.2; dur: 1500; dir: alternate; loop: true; easing: easeInOutSine">
+                </a-ring>
+
+                <!-- Text label -->
+                <a-text
+                    value="SECURINETS\nENIT"
+                    position="0 -0.5 0"
+                    align="center"
+                    color="#29ed00"
+                    font="kelsonsans"
+                    geometry="primitive: plane; width: 3; height: 1"
+                    material="color: #000; opacity: 0.8; transparent: true"
+                    animation__glow="property: material.emissive; to: #003300; dur: 1000; dir: alternate; loop: true">
+                </a-text>
+            </a-entity>
+
+            <!-- Particle system -->
+            <a-entity
+                id="particles"
+                visible="false"
+                particle-system="preset: dust; particleCount: 100; color: #29ed00, #C400ED; size: 0.5; maxAge: 3">
             </a-entity>
 
         </a-marker>
@@ -298,151 +441,196 @@
 
     <script>
         let markerFound = false;
+        let statusIndicator;
 
-
-        // Component to add green glow effect
-        AFRAME.registerComponent('green-glow', {
-            init: function () {
-                const el = this.el;
-                let materialApplied = false;
-                
-                // Function to apply green material
-                const applyGreenMaterial = () => {
-                    if (materialApplied) return;
-                    
-                    const model = el.getObject3D('mesh');
-                    if (model) {
-                        console.log('Applying green material to GLB model');
-                        materialApplied = true;
-                        
-                        model.traverse(function (child) {
-                            if (child.isMesh && child.material) {
-                                // Store original material properties
-                                const original = child.material;
-                                
-                                // Apply green color while preserving material structure
-                                if (original.color) {
-                                    original.color.setHex(0x29ed00); // Bright green
-                                }
-                                
-                                // Add emissive glow if supported
-                                if (original.emissive) {
-                                    original.emissive.setHex(0x003300); // Dark green glow
-                                }
-                                
-                                // Set emissive intensity if supported
-                                if (original.hasOwnProperty('emissiveIntensity')) {
-                                    original.emissiveIntensity = 0.3;
-                                }
-                                
-                                // Ensure transparency
-                                if (original.hasOwnProperty('transparent')) {
-                                    original.transparent = true;
-                                    original.opacity = 0.9;
-                                }
-                                
-                                // Force material update
-                                original.needsUpdate = true;
-                                
-                                console.log('Green material applied to:', child.name || 'mesh');
-                            }
-                        });
-                        
-                        // Add rotation animation
-                        el.setAttribute('animation__rotate', {
-                            property: 'rotation',
-                            to: '0 0 360',
-                            dur: 3000,
-                            loop: true,
-                            easing: 'linear'
-                        });
-                    }
-                };
-                
-                // Try to apply material when model loads
-                el.addEventListener('model-loaded', applyGreenMaterial);
-                
-                // Fallback attempts
-                setTimeout(applyGreenMaterial, 1000);
-                setTimeout(applyGreenMaterial, 3000);
-            }
-        });
-
-        // Custom marker handler component
+        // Enhanced marker handler component
         AFRAME.registerComponent('markerhandler', {
             init: function () {
                 const marker = this.el;
                 const cyberEntity = document.getElementById('cyber-entity');
                 const fallbackCube = document.getElementById('fallback-cube');
                 const particles = document.getElementById('particles');
-                const ring = marker.querySelector('a-ring');
-                const sphere = marker.querySelector('a-sphere');
+                statusIndicator = document.getElementById('status-indicator');
 
+                // Marker found event
                 marker.addEventListener('markerFound', function () {
-                    console.log('Neural marker detected!');
+                    console.log('🎯 Securinets marker detected!');
                     markerFound = true;
                     
-                    // Try to show GLB model first, fallback to cube
+                    // Update status
+                    if (statusIndicator) {
+                        statusIndicator.textContent = 'MARKER LOCKED';
+                        statusIndicator.classList.add('active');
+                    }
+                    
+                    // Show primary model or fallback
                     if (cyberEntity) {
                         cyberEntity.setAttribute('visible', 'true');
-                        if (particles) particles.setAttribute('visible', 'true');
-                        if (ring) ring.setAttribute('visible', 'true');
-                        if (sphere) sphere.setAttribute('visible', 'true');
+                        console.log('GLB model activated');
                     } else if (fallbackCube) {
                         fallbackCube.setAttribute('visible', 'true');
+                        console.log('Fallback cube activated');
+                    }
+                    
+                    // Show particles
+                    if (particles) {
+                        particles.setAttribute('visible', 'true');
                     }
                 });
 
+                // Marker lost event
                 marker.addEventListener('markerLost', function () {
-                    console.log('Neural marker lost');
+                    console.log('📡 Marker signal lost');
                     markerFound = false;
                     
+                    // Update status
+                    if (statusIndicator) {
+                        statusIndicator.textContent = 'Scanning for markers...';
+                        statusIndicator.classList.remove('active');
+                    }
+                    
                     // Hide all entities
-                    if (cyberEntity) {
-                        cyberEntity.setAttribute('visible', 'false');
-                        if (particles) particles.setAttribute('visible', 'false');
-                        if (ring) ring.setAttribute('visible', 'false');
-                        if (sphere) sphere.setAttribute('visible', 'false');
-                    }
-                    if (fallbackCube) {
-                        fallbackCube.setAttribute('visible', 'false');
-                    }
+                    if (cyberEntity) cyberEntity.setAttribute('visible', 'false');
+                    if (fallbackCube) fallbackCube.setAttribute('visible', 'false');
+                    if (particles) particles.setAttribute('visible', 'false');
                 });
             }
         });
 
-        // Initialize app
+        // Enhanced green glow component
+        AFRAME.registerComponent('green-glow', {
+            init: function () {
+                const el = this.el;
+                let materialApplied = false;
+                
+                const applyGreenMaterial = () => {
+                    if (materialApplied) return;
+                    
+                    const model = el.getObject3D('mesh');
+                    if (model) {
+                        console.log('🎨 Applying cyberpunk green material');
+                        materialApplied = true;
+                        
+                        model.traverse(function (child) {
+                            if (child.isMesh && child.material) {
+                                const original = child.material;
+                                
+                                // Apply green cyberpunk colors
+                                if (original.color) {
+                                    original.color.setHex(0x29ed00);
+                                }
+                                
+                                if (original.emissive) {
+                                    original.emissive.setHex(0x003300);
+                                }
+                                
+                                if (original.hasOwnProperty('emissiveIntensity')) {
+                                    original.emissiveIntensity = 0.4;
+                                }
+                                
+                                if (original.hasOwnProperty('transparent')) {
+                                    original.transparent = true;
+                                    original.opacity = 0.95;
+                                }
+                                
+                                original.needsUpdate = true;
+                            }
+                        });
+                        
+                        // Add holographic rotation
+                        el.setAttribute('animation__rotate', {
+                            property: 'rotation',
+                            to: '0 360 0',
+                            dur: 8000,
+                            loop: true,
+                            easing: 'linear'
+                        });
+                    }
+                };
+                
+                // Multiple attempts to apply material
+                el.addEventListener('model-loaded', applyGreenMaterial);
+                setTimeout(applyGreenMaterial, 1000);
+                setTimeout(applyGreenMaterial, 3000);
+                setTimeout(applyGreenMaterial, 5000);
+            }
+        });
+
+        // App initialization
         document.addEventListener('DOMContentLoaded', function() {
             const loadingScreen = document.getElementById('loading-screen');
+            statusIndicator = document.getElementById('status-indicator');
             
-            // Hide loading screen after AR.js initializes
+            console.log('🚀 Securinets AR initializing...');
+            
+            // Hide loading screen after initialization
             setTimeout(() => {
-                loadingScreen.classList.add('hidden');
+                if (loadingScreen) {
+                    loadingScreen.classList.add('hidden');
+                    console.log('✅ AR system ready');
+                }
             }, 3000);
 
-            // Handle model loading errors
+            // Handle GLB model loading
             const cyberEntity = document.getElementById('cyber-entity');
             if (cyberEntity) {
-                cyberEntity.addEventListener('model-error', function() {
-                    console.log('GLB model failed to load, using fallback');
+                cyberEntity.addEventListener('model-loaded', function() {
+                    console.log('✅ GLB model loaded successfully');
+                });
+                
+                cyberEntity.addEventListener('model-error', function(e) {
+                    console.warn('⚠️ GLB model failed to load:', e);
+                    console.log('🔄 Switching to fallback geometric model');
+                    
+                    // Hide GLB and show fallback
+                    cyberEntity.style.display = 'none';
+                    const fallback = document.getElementById('fallback-cube');
+                    if (fallback && markerFound) {
+                        fallback.setAttribute('visible', 'true');
+                    }
                 });
             }
         });
 
-        // Error handling for AR.js
+        // Error handling
         window.addEventListener('error', function(e) {
-            console.error('AR Error:', e.error);
+            console.error('💥 AR Error:', e.error);
         });
 
         // Camera permission handling
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(function(stream) {
-                console.log('Camera access granted');
-                stream.getTracks().forEach(track => track.stop());
-            })
-            .catch(function(err) {
-                console.error('Camera access denied:', err);
-            });
+        navigator.mediaDevices.getUserMedia({ 
+            video: { 
+                facingMode: 'environment',
+                width: { ideal: 1280 },
+                height: { ideal: 960 }
+            } 
+        })
+        .then(function(stream) {
+            console.log('📹 Camera access granted');
+            stream.getTracks().forEach(track => track.stop());
+        })
+        .catch(function(err) {
+            console.error('❌ Camera access denied:', err);
+            if (statusIndicator) {
+                statusIndicator.textContent = 'Camera access required';
+                statusIndicator.style.color = '#ff4444';
+            }
+        });
+
+        // Performance monitoring
+        let lastTime = performance.now();
+        function checkPerformance() {
+            const now = performance.now();
+            const delta = now - lastTime;
+            lastTime = now;
+            
+            if (delta > 50) { // More than 50ms between frames
+                console.warn('⚠️ Performance warning: Frame time', delta + 'ms');
+            }
+            
+            requestAnimationFrame(checkPerformance);
+        }
+        requestAnimationFrame(checkPerformance);
     </script>
 </body>
 </html>
