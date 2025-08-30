@@ -315,7 +315,7 @@
     <!-- UI Overlay -->
     <div id="ui-overlay">
         <div id="info-panel">
-            <h1>🛡️ Securinets ENIT</h1>
+            <h1>Securinets ENIT</h1>
             <p>Point your camera at the Securinets marker to activate the digital entity</p>
         </div>
 
@@ -455,7 +455,7 @@
 
                 // Marker found event
                 marker.addEventListener('markerFound', function () {
-                    console.log('🎯 Securinets marker detected!');
+                    console.log('Securinets marker detected!');
                     markerFound = true;
                     
                     // Update status
@@ -509,7 +509,7 @@
                     
                     const model = el.getObject3D('mesh');
                     if (model) {
-                        console.log('🎨 Applying cyberpunk green material');
+                        console.log('Applying cyberpunk green material');
                         materialApplied = true;
                         
                         model.traverse(function (child) {
@@ -562,13 +562,13 @@
             const loadingScreen = document.getElementById('loading-screen');
             statusIndicator = document.getElementById('status-indicator');
             
-            console.log('🚀 Securinets AR initializing...');
+            console.log('Securinets AR initializing...');
             
             // Hide loading screen after initialization
             setTimeout(() => {
                 if (loadingScreen) {
                     loadingScreen.classList.add('hidden');
-                    console.log('✅ AR system ready');
+                    console.log('AR system ready');
                 }
             }, 3000);
 
@@ -576,12 +576,12 @@
             const cyberEntity = document.getElementById('cyber-entity');
             if (cyberEntity) {
                 cyberEntity.addEventListener('model-loaded', function() {
-                    console.log('✅ GLB model loaded successfully');
+                    console.log('GLB model loaded successfully');
                 });
                 
                 cyberEntity.addEventListener('model-error', function(e) {
-                    console.warn('⚠️ GLB model failed to load:', e);
-                    console.log('🔄 Switching to fallback geometric model');
+                    console.warn('GLB model failed to load:', e);
+                    console.log('Switching to fallback geometric model');
                     
                     // Hide GLB and show fallback
                     cyberEntity.style.display = 'none';
@@ -595,7 +595,7 @@
 
         // Error handling
         window.addEventListener('error', function(e) {
-            console.error('💥 AR Error:', e.error);
+            console.error('AR Error:', e.error);
         });
 
         // Camera permission handling
@@ -607,11 +607,11 @@
             } 
         })
         .then(function(stream) {
-            console.log('📹 Camera access granted');
+            console.log('Camera access granted');
             stream.getTracks().forEach(track => track.stop());
         })
         .catch(function(err) {
-            console.error('❌ Camera access denied:', err);
+            console.error('Camera access denied:', err);
             if (statusIndicator) {
                 statusIndicator.textContent = 'Camera access required';
                 statusIndicator.style.color = '#ff4444';
@@ -626,7 +626,7 @@
             lastTime = now;
             
             if (delta > 50) { // More than 50ms between frames
-                console.warn('⚠️ Performance warning: Frame time', delta + 'ms');
+                console.warn('Performance warning: Frame time', delta + 'ms');
             }
             
             requestAnimationFrame(checkPerformance);
