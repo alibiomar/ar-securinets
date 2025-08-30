@@ -362,12 +362,12 @@
             <a-entity
                 id="cyber-entity"
                 gltf-model="#cyberpunk-model"
-                position="0 0.5 0"
+                position="0 0 0"
                 rotation="0 0 0"
                 scale="0.8 0.8 0.8"
                 visible="false"
                 green-glow
-                animation__float="property: position; to: 0 1 0; dur: 2000; dir: alternate; loop: true; easing: easeInOutSine">
+>
             </a-entity>
 
             <!-- Fallback Geometric Model (if GLB fails) -->
@@ -419,7 +419,6 @@
                 <a-text
                     value="SECURINETS\nENIT"
                     position="0 -0.5 0"
-                    align="center"
                     color="#29ed00"
                     font="kelsonsans"
                     geometry="primitive: plane; width: 3; height: 1"
@@ -542,8 +541,8 @@
                         // Add holographic rotation
                         el.setAttribute('animation__rotate', {
                             property: 'rotation',
-                            to: '0 360 0',
-                            dur: 8000,
+                            to: '0 0 360',
+                            dur: 3000,
                             loop: true,
                             easing: 'linear'
                         });
