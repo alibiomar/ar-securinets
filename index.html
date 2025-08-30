@@ -211,6 +211,11 @@
             }
         }
 
+        video {
+  object-fit: cover !important; /* fill screen without weird zoom */
+  width: 100% !important;
+  height: 100% !important;
+}
 
     </style>
 </head>
@@ -239,10 +244,15 @@
     <!-- AR.js Scene -->
 <a-scene
     embedded
-    arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono;"
+    arjs="sourceType: webcam; 
+          facingMode: environment; 
+          videoTexture: true; 
+          debugUIEnabled: false; 
+          detectionMode: mono;"
     vr-mode-ui="enabled: false"
-    renderer="logarithmicDepthBuffer: false; colorManagement: true; sortObjects: true; antialias: true;"
+    renderer="logarithmicDepthBuffer: true; colorManagement: true; sortObjects: true; antialias: true;"
     background="transparent: true">
+
 
         <!-- Assets -->
         <a-assets>
@@ -283,6 +293,27 @@
 
     <script>
         let markerFound = false;
+
+        THREEx.ArToolkitContext.baseURL = './';
+
+        navigator.mediaDevices.getUserMedia({
+            video: {
+                facingMode: { ideal: 'environment' },
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            }
+        })
+        .then(function (stream) {
+            let video = document.querySelector('video');
+            if (video) {
+                video.srcObject = stream;
+                video.play();
+            }
+        })
+        .catch(function (err) {
+            console.error("Camera init failed:", err);
+        });
+
 
         // Component to add green glow effect
         AFRAME.registerComponent('green-glow', {
