@@ -240,7 +240,7 @@
     <!-- AR.js Scene -->
 <a-scene
   embedded
-  arjs="sourceType: webcam; facingMode: environment; sourceWidth: 1920; sourceHeight: 1080; displayWidth: 1920; displayHeight: 1080; debugUIEnabled: false; detectionMode: mono;"
+  arjs="sourceType: webcam; facingMode: environment; sourceWidth: 1280; sourceHeight: 720; displayWidth: 1280; displayHeight: 720; debugUIEnabled: false; detectionMode: mono;"
   vr-mode-ui="enabled: false"
   renderer="logarithmicDepthBuffer: true; colorManagement: true; sortObjects: true; antialias: true;"
   background="transparent: true">
@@ -342,7 +342,7 @@
                         el.setAttribute('animation__rotate', {
                             property: 'rotation',
                             to: '0 0 360',
-                            dur: 8000,
+                            dur: 3000,
                             loop: true,
                             easing: 'linear'
                         });
