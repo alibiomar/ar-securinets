@@ -252,7 +252,7 @@
     <div id="ui-overlay">
         <div id="info-panel">
             <h1>🔮 Cyber AR Portal</h1>
-            <p>Point camera at Hiro marker to deploy digital entity</p>
+            <p>Point camera at custom marker to deploy digital entity</p>
         </div>
 
         <div id="marker-status">Scanning for markers...</div>
@@ -274,10 +274,17 @@
 
         <!-- Assets -->
         <a-assets>
+            <!-- Custom marker pattern -->
+            <a-asset-item 
+                id="custom-marker-pattern" 
+                src="./pattern-logoSecurinests.patt"
+                crossorigin="anonymous">
+            </a-asset-item>
+
             <!-- Replace with your actual .glb file -->
             <a-asset-item 
                 id="cyberpunk-model" 
-                src="/logo.glb"
+                src="./logo.glb"
                 crossorigin="anonymous">
             </a-asset-item>
             
@@ -311,9 +318,10 @@
             distance="8">
         </a-light>
 
-        <!-- Hiro Marker with Cyberpunk GLB Model -->
+        <!-- Custom Marker with Cyberpunk GLB Model -->
         <a-marker 
-            preset="hiro" 
+            type="pattern" 
+            url="./pattern-logoSecurinests.patt"
             id="main-marker"
             markerhandler
         >
@@ -417,7 +425,7 @@
                 const sphere = marker.querySelector('a-sphere');
 
                 marker.addEventListener('markerFound', function () {
-                    console.log('🎯 Neural marker detected!');
+                    console.log('🎯 Custom neural marker detected!');
                     markerFound = true;
                     updateStatus('Entity Materializing...');
                     
@@ -440,7 +448,7 @@
                 });
 
                 marker.addEventListener('markerLost', function () {
-                    console.log('❌ Neural marker lost');
+                    console.log('❌ Custom neural marker lost');
                     markerFound = false;
                     updateStatus('Scanning for markers...');
                     
@@ -496,7 +504,7 @@
             // Hide loading screen after AR.js initializes
             setTimeout(() => {
                 loadingScreen.classList.add('hidden');
-                updateStatus('Point camera at Hiro marker');
+                updateStatus('Point camera at custom marker');
             }, 3000);
 
             // Handle model loading errors
