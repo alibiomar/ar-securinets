@@ -17,7 +17,6 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            overflow: hidden;
         }
 
         body {
@@ -211,11 +210,14 @@
                 filter: drop-shadow(0 0 15px #29ed00);
             }
         }
-
-        video, canvas, a-scene {
-    position: fixed !important;
-    width: 100vw !important;
-    height: 100vh !important;
+a-scene {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
 }
 
     </style>
