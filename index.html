@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <title>Securinets ENIT</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
@@ -109,7 +112,8 @@
             position: fixed;
             top: 0;
             left: 0;
-
+            width: 100vw;
+            height: 100vh;
             pointer-events: none;
             z-index: 1000;
         }
@@ -224,6 +228,16 @@
             }
         }
 
+        video, canvas, a-scene {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    width: 100vw !important;
+    height: 100vh !important;
+    object-fit: cover !important;
+    overflow: hidden;
+}
+
     </style>
 </head>
 <body>
@@ -278,7 +292,7 @@
             <a-entity
                 id="cyber-entity"
                 gltf-model="#cyberpunk-model"
-                position="-0.5 0 0"
+                position="0 0 0"
                 rotation="0 -180 0"
                 scale="1 1 1"
                 animation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear"
