@@ -3,62 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR GLB Viewer</title>
+    <title>Cyberpunk AR Portal</title>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
         
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            overflow: hidden;
         }
 
         body {
-            width: 100vw;
-            height: 100vh;
-            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
             font-family: 'Orbitron', monospace;
             overflow: hidden;
-            position: relative;
+            background: #000;
         }
 
-        /* Animated grid background */
-        body::before {
-            content: '';
+        /* Loading Screen */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(45deg, #1a1a1a, #2d1b69);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        #loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .cyber-grid {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background-image: 
-                linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
-            background-size: 40px 40px;
-            animation: gridMove 15s linear infinite;
-            z-index: 1;
+                linear-gradient(rgba(41, 237, 0, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(41, 237, 0, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
         }
 
         @keyframes gridMove {
             0% { transform: translate(0, 0); }
-            100% { transform: translate(40px, 40px); }
+            100% { transform: translate(50px, 50px); }
         }
 
-        @keyframes glow {
+        .loading-spinner {
+            width: 80px;
+            height: 80px;
+            border: 4px solid transparent;
+            border-top: 4px solid #29ed00;
+            border-right: 4px solid #C400ED;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 30px;
+            filter: drop-shadow(0 0 20px #29ed00);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #29ed00;
+            font-size: 24px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-align: center;
+            animation: neonGlow 2s ease-in-out infinite;
+            text-shadow: 0 0 20px #29ed00;
+        }
+
+        .loading-subtitle {
+            color: #C400ED;
+            font-size: 16px;
+            font-weight: 400;
+            margin-top: 15px;
+            opacity: 0.8;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes neonGlow {
             0%, 100% { 
-                box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
-                text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+                text-shadow: 0 0 20px #29ed00, 0 0 40px #29ed00;
             }
             50% { 
-                box-shadow: 0 0 30px rgba(255, 0, 255, 0.5);
-                text-shadow: 0 0 15px rgba(255, 0, 255, 0.8);
+                text-shadow: 0 0 30px #C400ED, 0 0 50px #C400ED;
             }
         }
 
-        #container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
+        @keyframes pulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+
+        /* UI Overlay */
+        #ui-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 1000;
         }
 
         #info-panel {
@@ -66,370 +128,403 @@
             top: 20px;
             left: 20px;
             right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            border: 2px solid #00ffff;
-            border-radius: 10px;
-            padding: 15px;
-            color: #00ffff;
+            background: rgba(26, 26, 26, 0.95);
+            border: 2px solid #29ed00;
+            border-radius: 15px;
+            padding: 20px;
+            color: #29ed00;
             text-align: center;
-            z-index: 100;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(10px);
+            box-shadow: 
+                0 0 30px rgba(41, 237, 0, 0.3),
+                inset 0 0 20px rgba(41, 237, 0, 0.1);
+            animation: borderGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes borderGlow {
+            0%, 100% { border-color: #29ed00; box-shadow: 0 0 30px rgba(41, 237, 0, 0.3); }
+            50% { border-color: #C400ED; box-shadow: 0 0 30px rgba(196, 0, 237, 0.3); }
         }
 
         #info-panel h1 {
-            font-size: 20px;
-            font-weight: 700;
-            color: #ff00ff;
-            margin-bottom: 5px;
-            animation: glow 2s ease-in-out infinite;
+            margin: 0 0 10px 0;
+            font-size: 22px;
+            font-weight: 900;
+            color: #C400ED;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px #C400ED;
         }
 
-        #ar-button {
+        #info-panel p {
+            margin: 0;
+            font-size: 14px;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        #marker-status {
             position: absolute;
-            bottom: 40px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: linear-gradient(45deg, #00ffff, #0080ff);
-            border: 2px solid #00ffff;
-            border-radius: 25px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #29ed00;
+            color: #29ed00;
             padding: 15px 30px;
+            border-radius: 25px;
             font-size: 16px;
             font-weight: 700;
-            color: #000;
-            cursor: pointer;
-            font-family: 'Orbitron', monospace;
-            transition: all 0.3s ease;
-            z-index: 100;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: pulse 2s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(41, 237, 0, 0.5);
         }
 
-        #ar-button:hover:not(:disabled) {
-            background: linear-gradient(45deg, #ff00ff, #ff0080);
-            border-color: #ff00ff;
-            transform: translateX(-50%) translateY(-5px);
-        }
-
-        #ar-button:disabled {
-            background: #666;
-            border-color: #666;
-            cursor: not-allowed;
-            opacity: 0.6;
-            color: #999;
-        }
-
-        #status {
+        /* Cyberpunk corners */
+        .corner {
             position: absolute;
-            bottom: 110px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid #00ffff;
-            color: #00ffff;
-            padding: 10px 20px;
-            border-radius: 15px;
-            font-size: 12px;
-            z-index: 100;
-            display: none;
+            width: 50px;
+            height: 50px;
+            border: 3px solid #C400ED;
+            pointer-events: none;
         }
 
-        #reticle {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 30px;
-            height: 30px;
-            transform: translate(-50%, -50%);
-            border: 2px solid #ff00ff;
-            border-radius: 50%;
-            z-index: 200;
-            display: none;
-            animation: glow 1s ease-in-out infinite;
+        .corner.top-left {
+            top: 40px;
+            left: 40px;
+            border-right: none;
+            border-bottom: none;
+            animation: cornerGlow 2s ease-in-out infinite;
         }
 
-        #reticle::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 6px;
-            height: 6px;
-            background: #00ffff;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
+        .corner.top-right {
+            top: 40px;
+            right: 40px;
+            border-left: none;
+            border-bottom: none;
+            animation: cornerGlow 2s ease-in-out infinite 0.5s;
         }
 
-        canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
+        .corner.bottom-left {
+            bottom: 40px;
+            left: 40px;
+            border-right: none;
+            border-top: none;
+            animation: cornerGlow 2s ease-in-out infinite 1s;
         }
 
-        .loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #00ffff;
-            font-size: 18px;
-            z-index: 1000;
+        .corner.bottom-right {
+            bottom: 40px;
+            right: 40px;
+            border-left: none;
+            border-top: none;
+            animation: cornerGlow 2s ease-in-out infinite 1.5s;
+        }
+
+        @keyframes cornerGlow {
+            0%, 100% { 
+                border-color: #C400ED;
+                filter: drop-shadow(0 0 10px #C400ED);
+            }
+            50% { 
+                border-color: #29ed00;
+                filter: drop-shadow(0 0 15px #29ed00);
+            }
+        }
+
+        a-scene {
+            width: 100vw !important;
+            height: 100vh !important;
         }
     </style>
 </head>
 <body>
-    <div id="container">
-        <div id="info-panel">
-            <h1>AR Viewer</h1>
-            <p>Place 3D objects in your environment</p>
-        </div>
-        
-        <div id="reticle"></div>
-        <div id="status">Initializing...</div>
-        
-        <button id="ar-button" disabled>
-            Checking AR Support...
-        </button>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="cyber-grid"></div>
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Neural Interface</div>
+        <div class="loading-subtitle">Initializing AR Systems...</div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- UI Overlay -->
+    <div id="ui-overlay">
+        <div id="info-panel">
+            <h1>🔮 Cyber AR Portal</h1>
+            <p>Point camera at Hiro marker to deploy digital entity</p>
+        </div>
+
+        <div id="marker-status">Scanning for markers...</div>
+
+        <!-- Cyberpunk corner decorations -->
+        <div class="corner top-left"></div>
+        <div class="corner top-right"></div>
+        <div class="corner bottom-left"></div>
+        <div class="corner bottom-right"></div>
+    </div>
+
+    <!-- AR.js Scene -->
+    <a-scene 
+  embedded
+  arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono;"
+  vr-mode-ui="enabled: false"
+  renderer="logarithmicDepthBuffer: true; colorManagement: true; sortObjects: true; antialias: true;"
+  background="transparent: true">
+
+        <!-- Assets -->
+        <a-assets>
+            <!-- Replace with your actual .glb file -->
+            <a-asset-item 
+                id="cyberpunk-model" 
+                src="/logo.glb"
+                crossorigin="anonymous">
+            </a-asset-item>
+            
+            <!-- Fallback assets -->
+            <a-mixin 
+                id="cyber-material"
+                material="color: #29ed00; emissive: #0a4d00; emissiveIntensity: 0.3; metalness: 0.8; roughness: 0.2">
+            </a-mixin>
+        </a-assets>
+
+        <!-- Cyberpunk Lighting -->
+        <a-light 
+            type="ambient" 
+            color="#29ed00" 
+            intensity="0.4">
+        </a-light>
+        
+        <a-light 
+            type="directional" 
+            position="2 4 2" 
+            color="#C400ED" 
+            intensity="1"
+            castShadow="true">
+        </a-light>
+        
+        <a-light 
+            type="point" 
+            position="1 2 1" 
+            color="#29ed00" 
+            intensity="1.5"
+            distance="8">
+        </a-light>
+
+        <!-- Hiro Marker with Cyberpunk GLB Model -->
+        <a-marker 
+            preset="hiro" 
+            id="main-marker"
+            markerhandler
+        >
+            <!-- Your GLB Model -->
+            <a-entity
+                id="cyber-entity"
+                gltf-model="#cyberpunk-model"
+                position="0 0.5 0"
+                rotation="0 0 0"
+                scale="1 1 1"
+                animation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear"
+                animation__float="property: position; to: 0 1.2 0; dir: alternate; dur: 3000; loop: true; easing: easeInOutSine"
+                animation__scale="property: scale; from: 0.1 0.1 0.1; to: 1 1 1; dur: 1000; easing: easeOutElastic"
+                visible="false"
+            >
+                <!-- Cyberpunk particle system -->
+                <a-entity
+                    id="particles"
+                    position="0 0 0"
+                    particle-system="
+                        preset: dust; 
+                        particleCount: 50; 
+                        color: #29ed00, #C400ED; 
+                        size: 0.5; 
+                        maxAge: 3;
+                        accelerationValue: 0, -0.1, 0;
+                        velocityValue: 0.1 0.1 0.1;
+                    "
+                    visible="false">
+                </a-entity>
+
+                <!-- Holographic ring effect -->
+                <a-ring
+                    color="#C400ED"
+                    radius-inner="0.8"
+                    radius-outer="1"
+                    position="0 -0.1 0"
+                    rotation="-90 0 0"
+                    material="transparent: true; opacity: 0.6;"
+                    animation="property: rotation; to: -90 360 0; loop: true; dur: 10000; easing: linear"
+                    visible="false">
+                </a-ring>
+
+                <!-- Energy field effect -->
+                <a-sphere
+                    color="#29ed00"
+                    radius="1.5"
+                    position="0 0 0"
+                    material="transparent: true; opacity: 0.1; side: double;"
+                    animation="property: scale; to: 1.2 1.2 1.2; dir: alternate; dur: 2000; loop: true; easing: easeInOutSine"
+                    visible="false">
+                </a-sphere>
+            </a-entity>
+
+            <!-- Fallback Cyberpunk Cube (if GLB fails to load) -->
+            <a-entity
+                id="fallback-cube"
+                geometry="primitive: box; width: 0.6; height: 0.6; depth: 0.6"
+                material="color: #29ed00; emissive: #0a4d00; emissiveIntensity: 0.4; metalness: 0.8; roughness: 0.2"
+                position="0 0.5 0"
+                rotation="45 45 0"
+                animation="property: rotation; to: 405 405 360; loop: true; dur: 8000; easing: linear"
+                animation__float="property: position; to: 0 1.2 0; dir: alternate; dur: 3000; loop: true; easing: easeInOutSine"
+                animation__scale="property: scale; from: 0.1 0.1 0.1; to: 1 1 1; dur: 1000; easing: easeOutElastic"
+                visible="false"
+            >
+                <!-- Wireframe overlay -->
+                <a-entity
+                    geometry="primitive: box; width: 0.61; height: 0.61; depth: 0.61"
+                    material="color: #C400ED; wireframe: true; opacity: 0.8"
+                    position="0 0 0">
+                </a-entity>
+
+                <!-- Glowing core -->
+                <a-sphere
+                    radius="0.1"
+                    color="#ffffff"
+                    position="0 0 0"
+                    material="emissive: #29ed00; emissiveIntensity: 1"
+                    animation="property: scale; to: 1.5 1.5 1.5; dir: alternate; dur: 1000; loop: true">
+                </a-sphere>
+            </a-entity>
+        </a-marker>
+
+        <!-- Camera -->
+        <a-entity camera></a-entity>
+    </a-scene>
+
     <script>
-        let scene, camera, renderer, arButton, statusDiv, reticleDiv;
-        let model = null;
-        let reticle = null;
-        let hitTestSource = null;
-        let hitTestSourceRequested = false;
-        let placedObjects = [];
+        let markerFound = false;
+        let statusElement = document.getElementById('marker-status');
 
-        function init() {
-            statusDiv = document.getElementById('status');
-            arButton = document.getElementById('ar-button');
-            reticleDiv = document.getElementById('reticle');
+        // Custom marker handler component
+        AFRAME.registerComponent('markerhandler', {
+            init: function () {
+                const marker = this.el;
+                const cyberEntity = document.getElementById('cyber-entity');
+                const fallbackCube = document.getElementById('fallback-cube');
+                const particles = document.getElementById('particles');
+                const ring = marker.querySelector('a-ring');
+                const sphere = marker.querySelector('a-sphere');
 
-            // Create scene
-            scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
+                marker.addEventListener('markerFound', function () {
+                    console.log('🎯 Neural marker detected!');
+                    markerFound = true;
+                    updateStatus('Entity Materializing...');
+                    
+                    // Try to show GLB model first, fallback to cube
+                    if (cyberEntity) {
+                        cyberEntity.setAttribute('visible', 'true');
+                        if (particles) particles.setAttribute('visible', 'true');
+                        if (ring) ring.setAttribute('visible', 'true');
+                        if (sphere) sphere.setAttribute('visible', 'true');
+                    } else if (fallbackCube) {
+                        fallbackCube.setAttribute('visible', 'true');
+                    }
+                    
+                    // Play materialization sound effect (cyberpunk beep)
+                    playMaterializationEffect();
+                    
+                    setTimeout(() => {
+                        updateStatus('Entity Active');
+                    }, 1000);
+                });
 
-            // Create renderer with XR support
-            renderer = new THREE.WebGLRenderer({ 
-                antialias: true, 
-                alpha: true 
-            });
-            renderer.setPixelRatio(window.devicePixelRatio);
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.xr.enabled = true;
-            
-            document.getElementById('container').appendChild(renderer.domElement);
-
-            // Add lighting
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-            scene.add(ambientLight);
-
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-            directionalLight.position.set(1, 1, 1);
-            scene.add(directionalLight);
-
-            // Create reticle
-            const reticleGeometry = new THREE.RingGeometry(0.08, 0.12, 32).rotateX(-Math.PI / 2);
-            const reticleMaterial = new THREE.MeshBasicMaterial({ 
-                color: 0x00ffff,
-                transparent: true,
-                opacity: 0.7
-            });
-            reticle = new THREE.Mesh(reticleGeometry, reticleMaterial);
-            reticle.matrixAutoUpdate = false;
-            reticle.visible = false;
-            scene.add(reticle);
-
-            // Create default model (cube)
-            createDefaultModel();
-
-            // Check for WebXR support
-            checkARSupport();
-
-            // Set up AR button
-            arButton.addEventListener('click', onARButtonClick);
-
-            // Handle window resize
-            window.addEventListener('resize', onWindowResize);
-
-            // Start render loop
-            renderer.setAnimationLoop(render);
-        }
-
-        function createDefaultModel() {
-            // Create a simple glowing cube as the default 3D object
-            const geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
-            const material = new THREE.MeshPhongMaterial({ 
-                color: 0x00ffff,
-                emissive: 0x004444,
-                transparent: true,
-                opacity: 0.9
-            });
-            
-            model = new THREE.Mesh(geometry, material);
-            model.visible = false;
-            scene.add(model);
-
-            // Add wireframe
-            const wireframeGeometry = new THREE.EdgesGeometry(geometry);
-            const wireframeMaterial = new THREE.LineBasicMaterial({ color: 0xff00ff });
-            const wireframe = new THREE.LineSegments(wireframeGeometry, wireframeMaterial);
-            model.add(wireframe);
-        }
-
-        function checkARSupport() {
-            if ('xr' in navigator) {
-                navigator.xr.isSessionSupported('immersive-ar').then((supported) => {
-                    if (supported) {
-                        arButton.disabled = false;
-                        arButton.textContent = 'Start AR';
-                        showStatus('AR Ready');
-                        hideStatus();
-                    } else {
-                        arButton.textContent = 'AR Not Supported';
-                        showStatus('AR not supported on this device');
+                marker.addEventListener('markerLost', function () {
+                    console.log('❌ Neural marker lost');
+                    markerFound = false;
+                    updateStatus('Scanning for markers...');
+                    
+                    // Hide all entities
+                    if (cyberEntity) {
+                        cyberEntity.setAttribute('visible', 'false');
+                        if (particles) particles.setAttribute('visible', 'false');
+                        if (ring) ring.setAttribute('visible', 'false');
+                        if (sphere) sphere.setAttribute('visible', 'false');
+                    }
+                    if (fallbackCube) {
+                        fallbackCube.setAttribute('visible', 'false');
                     }
                 });
-            } else {
-                arButton.textContent = 'WebXR Not Available';
-                showStatus('WebXR not available in this browser');
+            }
+        });
+
+        function updateStatus(message) {
+            if (statusElement) {
+                statusElement.textContent = message;
             }
         }
 
-        function onARButtonClick() {
-            if (renderer.xr.isPresenting) {
-                renderer.xr.getSession().end();
-            } else {
-                startARSession();
-            }
-        }
-
-        async function startARSession() {
+        function playMaterializationEffect() {
+            // Create cyberpunk materialization sound effect
             try {
-                showStatus('Starting AR...');
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 
-                const session = await navigator.xr.requestSession('immersive-ar', {
-                    requiredFeatures: ['hit-test'],
-                    optionalFeatures: ['dom-overlay'],
-                    domOverlay: { root: document.body }
-                });
-
-                session.addEventListener('end', onSessionEnd);
-                await renderer.xr.setSession(session);
+                // Create a cyber-style beep
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
                 
-                arButton.textContent = 'Stop AR';
-                arButton.style.background = 'linear-gradient(45deg, #ff00ff, #ff0080)';
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
                 
-                reticleDiv.style.display = 'block';
-                showStatus('Tap to place object');
-
-                // Set up hit testing
-                session.requestReferenceSpace('viewer').then((referenceSpace) => {
-                    session.requestHitTestSource({ space: referenceSpace }).then((source) => {
-                        hitTestSource = source;
-                    });
-                });
-
-                hitTestSourceRequested = true;
-
-            } catch (error) {
-                console.error('AR session failed:', error);
-                showStatus('AR failed to start');
-                arButton.textContent = 'Start AR';
-                arButton.style.background = 'linear-gradient(45deg, #00ffff, #0080ff)';
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.1);
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } catch (e) {
+                console.log('Audio context not available');
             }
         }
 
-        function onSessionEnd() {
-            hitTestSourceRequested = false;
-            hitTestSource = null;
-            reticle.visible = false;
-            reticleDiv.style.display = 'none';
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            const loadingScreen = document.getElementById('loading-screen');
             
-            // Hide all placed objects
-            placedObjects.forEach(obj => obj.visible = false);
-            
-            arButton.textContent = 'Start AR';
-            arButton.style.background = 'linear-gradient(45deg, #00ffff, #0080ff)';
-            hideStatus();
-        }
-
-        function render(timestamp, frame) {
-            if (frame) {
-                const referenceSpace = renderer.xr.getReferenceSpace();
-                const session = renderer.xr.getSession();
-
-                if (hitTestSourceRequested === false) return;
-
-                if (hitTestSource) {
-                    const hitTestResults = frame.getHitTestResults(hitTestSource);
-
-                    if (hitTestResults.length > 0) {
-                        const hit = hitTestResults[0];
-                        reticle.visible = true;
-                        reticle.matrix.fromArray(hit.getPose(referenceSpace).transform.matrix);
-
-                        // Handle tap to place object
-                        session.addEventListener('select', () => placeObject(hit, referenceSpace));
-                    } else {
-                        reticle.visible = false;
-                    }
-                }
-
-                // Animate placed objects
-                placedObjects.forEach((obj) => {
-                    if (obj.visible) {
-                        obj.rotation.y += 0.01;
-                        obj.rotation.x += 0.005;
-                    }
-                });
-            }
-
-            renderer.render(scene, camera);
-        }
-
-        function placeObject(hit, referenceSpace) {
-            if (reticle.visible && model) {
-                const newModel = model.clone();
-                newModel.position.setFromMatrixPosition(reticle.matrix);
-                newModel.visible = true;
-                
-                // Spawn animation
-                newModel.scale.setScalar(0);
-                animateScale(newModel, 0.5);
-                
-                placedObjects.push(newModel);
-                scene.add(newModel);
-                
-                showStatus('Object placed!');
-                hideStatus();
-            }
-        }
-
-        function animateScale(object, targetScale) {
-            if (object.scale.x < targetScale) {
-                object.scale.addScalar(0.02);
-                requestAnimationFrame(() => animateScale(object, targetScale));
-            }
-        }
-
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }
-
-        function showStatus(message) {
-            statusDiv.textContent = message;
-            statusDiv.style.display = 'block';
-        }
-
-        function hideStatus() {
+            // Hide loading screen after AR.js initializes
             setTimeout(() => {
-                statusDiv.style.display = 'none';
-            }, 2000);
-        }
+                loadingScreen.classList.add('hidden');
+                updateStatus('Point camera at Hiro marker');
+            }, 3000);
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', init);
+            // Handle model loading errors
+            const cyberEntity = document.getElementById('cyber-entity');
+            if (cyberEntity) {
+                cyberEntity.addEventListener('model-error', function() {
+                    console.log('GLB model failed to load, using fallback');
+                    updateStatus('Using fallback entity');
+                });
+            }
+        });
+
+        // Error handling for AR.js
+        window.addEventListener('error', function(e) {
+            console.error('AR Error:', e.error);
+            updateStatus('AR System Error');
+        });
+
+        // Camera permission handling
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function(stream) {
+                console.log('Camera access granted');
+                stream.getTracks().forEach(track => track.stop());
+            })
+            .catch(function(err) {
+                console.error('Camera access denied:', err);
+                updateStatus('Camera access required');
+            });
     </script>
 </body>
 </html>
