@@ -239,14 +239,12 @@
 
     <!-- AR.js Scene -->
 <a-scene
-    embedded
-    arjs="sourceType: webcam; 
-          videoTexture: true; 
-          debugUIEnabled: false; 
-          detectionMode: mono;"
-    vr-mode-ui="enabled: false"
-    renderer="logarithmicDepthBuffer: true; colorManagement: true; sortObjects: true; antialias: true;"
-    background="transparent: true">
+  embedded
+  arjs="sourceType: webcam; facingMode: environment; sourceWidth: 1920; sourceHeight: 1080; displayWidth: 1920; displayHeight: 1080; debugUIEnabled: false; detectionMode: mono;"
+  vr-mode-ui="enabled: false"
+  renderer="logarithmicDepthBuffer: true; colorManagement: true; sortObjects: true; antialias: true;"
+  background="transparent: true">
+
 
 
         <!-- Assets -->
@@ -290,23 +288,6 @@
         let markerFound = false;
 
 
-        navigator.mediaDevices.getUserMedia({
-            video: {
-                facingMode: { ideal: 'environment' },
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
-            }
-        })
-        .then(function (stream) {
-            let video = document.querySelector('video');
-            if (video) {
-                video.srcObject = stream;
-                video.play();
-            }
-        })
-        .catch(function (err) {
-            console.error("Camera init failed:", err);
-        });
 
 
         // Component to add green glow effect
