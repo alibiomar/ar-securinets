@@ -285,15 +285,18 @@
             preset="hiro" 
             id="main-marker"
             markerhandler
+            smooth="true"
+            smoothCount="5"
+            smoothTolerance="0.01"
+            smoothThreshold="2"
         >
-            <!-- Your GLB Model with Green Material Override -->
+            <!-- Your GLB Model with Green Color Override -->
             <a-entity
                 id="cyber-entity"
                 gltf-model="#cyberpunk-model"
                 position="0 0 0"
                 rotation="0 0 0"
                 scale="1 1 1"
-                material="color: #29ed00; metalness: 0.8; roughness: 0.2; emissive: #003300; emissiveIntensity: 0.3"
                 visible="false"
                 green-glow>
             </a-entity>
@@ -312,49 +315,67 @@
         AFRAME.registerComponent('green-glow', {
             init: function () {
                 const el = this.el;
+                let materialApplied = false;
                 
-                // Add pulsing green glow animation
-                el.setAttribute('animation__glow', {
-                    property: 'material.emissiveIntensity',
-                    to: '0.6',
-                    dur: 2000,
-                    direction: 'alternate',
-                    loop: true,
-                    easing: 'easeInOutSine'
-                });
-
-                // Add rotation animation
-                el.setAttribute('animation__rotate', {
-                    property: 'rotation',
-                    to: '0 0 360',
-                    dur: 8000,
-                    loop: true,
-                    easing: 'linear'
-                });
-
-                // Listen for model-loaded event to apply material override
-                el.addEventListener('model-loaded', function () {
-                    console.log('Model loaded, applying green material');
+                // Function to apply green material
+                const applyGreenMaterial = () => {
+                    if (materialApplied) return;
                     
-                    // Get the mesh and apply green material to all parts
-                    const object3D = el.getObject3D('mesh');
-                    if (object3D) {
-                        object3D.traverse(function (child) {
-                            if (child.isMesh) {
-                                // Create green cyberpunk material
-                                child.material = new THREE.MeshStandardMaterial({
-                                    color: new THREE.Color('#29ed00'),
-                                    metalness: 0.8,
-                                    roughness: 0.2,
-                                    emissive: new THREE.Color('#003300'),
-                                    emissiveIntensity: 0.3,
-                                    transparent: true,
-                                    opacity: 0.9
-                                });
+                    const model = el.getObject3D('mesh');
+                    if (model) {
+                        console.log('Applying green material to GLB model');
+                        materialApplied = true;
+                        
+                        model.traverse(function (child) {
+                            if (child.isMesh && child.material) {
+                                // Store original material properties
+                                const original = child.material;
+                                
+                                // Apply green color while preserving material structure
+                                if (original.color) {
+                                    original.color.setHex(0x29ed00); // Bright green
+                                }
+                                
+                                // Add emissive glow if supported
+                                if (original.emissive) {
+                                    original.emissive.setHex(0x003300); // Dark green glow
+                                }
+                                
+                                // Set emissive intensity if supported
+                                if (original.hasOwnProperty('emissiveIntensity')) {
+                                    original.emissiveIntensity = 0.3;
+                                }
+                                
+                                // Ensure transparency
+                                if (original.hasOwnProperty('transparent')) {
+                                    original.transparent = true;
+                                    original.opacity = 0.9;
+                                }
+                                
+                                // Force material update
+                                original.needsUpdate = true;
+                                
+                                console.log('Green material applied to:', child.name || 'mesh');
                             }
                         });
+                        
+                        // Add rotation animation
+                        el.setAttribute('animation__rotate', {
+                            property: 'rotation',
+                            to: '0 360 0',
+                            dur: 8000,
+                            loop: true,
+                            easing: 'linear'
+                        });
                     }
-                });
+                };
+                
+                // Try to apply material when model loads
+                el.addEventListener('model-loaded', applyGreenMaterial);
+                
+                // Fallback attempts
+                setTimeout(applyGreenMaterial, 1000);
+                setTimeout(applyGreenMaterial, 3000);
             }
         });
 
@@ -363,6 +384,10 @@
             init: function () {
                 const marker = this.el;
                 const cyberEntity = document.getElementById('cyber-entity');
+                const fallbackCube = document.getElementById('fallback-cube');
+                const particles = document.getElementById('particles');
+                const ring = marker.querySelector('a-ring');
+                const sphere = marker.querySelector('a-sphere');
 
                 marker.addEventListener('markerFound', function () {
                     console.log('Neural marker detected!');
@@ -372,10 +397,15 @@
                     // Try to show GLB model first, fallback to cube
                     if (cyberEntity) {
                         cyberEntity.setAttribute('visible', 'true');
- 
+                        if (particles) particles.setAttribute('visible', 'true');
+                        if (ring) ring.setAttribute('visible', 'true');
+                        if (sphere) sphere.setAttribute('visible', 'true');
+                    } else if (fallbackCube) {
+                        fallbackCube.setAttribute('visible', 'true');
                     }
-
-                                        
+                    
+                    // Play materialization sound effect (cyberpunk beep)
+                    
                     setTimeout(() => {
                         updateStatus('Entity Active');
                     }, 1000);
