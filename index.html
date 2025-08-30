@@ -160,24 +160,6 @@
             font-weight: 400;
         }
 
-        #marker-status {
-            position: absolute;
-            bottom: 2em;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.9);
-            border: 1px solid #29ed00;
-            color: #29ed00;
-            padding: 15px 30px;
-            border-radius: 25px;
-            font-size: 1em;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            animation: pulse 2s ease-in-out infinite;
-            box-shadow: 0 0 20px rgba(41, 237, 0, 0.5);
-        }
-
         /* Cyberpunk corners */
         .corner {
             position: absolute;
@@ -232,8 +214,6 @@
 
         video, canvas, a-scene {
     position: fixed !important;
-    top: 0;
-    left: 0;
     width: 100vw !important;
     height: 100vh !important;
 }
@@ -254,8 +234,6 @@
             <h1>Welcome to Securinets</h1>
             <p>Point camera at Hiro marker to deploy digital entity</p>
         </div>
-
-        <div id="marker-status">Scanning for markers...</div>
 
         <!-- Cyberpunk corner decorations -->
         <div class="corner top-left"></div>
@@ -311,7 +289,6 @@
 
     <script>
         let markerFound = false;
-        let statusElement = document.getElementById('marker-status');
 
         // Component to add green glow effect
         AFRAME.registerComponent('green-glow', {
@@ -394,7 +371,6 @@
                 marker.addEventListener('markerFound', function () {
                     console.log('Neural marker detected!');
                     markerFound = true;
-                    updateStatus('Entity Materializing...');
                     
                     // Try to show GLB model first, fallback to cube
                     if (cyberEntity) {
@@ -405,18 +381,11 @@
                     } else if (fallbackCube) {
                         fallbackCube.setAttribute('visible', 'true');
                     }
-                    
-                    // Play materialization sound effect (cyberpunk beep)
-                    
-                    setTimeout(() => {
-                        updateStatus('Entity Active');
-                    }, 1000);
                 });
 
                 marker.addEventListener('markerLost', function () {
                     console.log('Neural marker lost');
                     markerFound = false;
-                    updateStatus('Scanning for markers...');
                     
                     // Hide all entities
                     if (cyberEntity) {
@@ -432,12 +401,6 @@
             }
         });
 
-        function updateStatus(message) {
-            if (statusElement) {
-                statusElement.textContent = message;
-            }
-        }
-
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
             const loadingScreen = document.getElementById('loading-screen');
@@ -445,7 +408,6 @@
             // Hide loading screen after AR.js initializes
             setTimeout(() => {
                 loadingScreen.classList.add('hidden');
-                updateStatus('Point camera at Hiro marker');
             }, 3000);
 
             // Handle model loading errors
@@ -453,7 +415,6 @@
             if (cyberEntity) {
                 cyberEntity.addEventListener('model-error', function() {
                     console.log('GLB model failed to load, using fallback');
-                    updateStatus('Using fallback entity');
                 });
             }
         });
@@ -461,7 +422,6 @@
         // Error handling for AR.js
         window.addEventListener('error', function(e) {
             console.error('AR Error:', e.error);
-            updateStatus('AR System Error');
         });
 
         // Camera permission handling
@@ -472,7 +432,6 @@
             })
             .catch(function(err) {
                 console.error('Camera access denied:', err);
-                updateStatus('Camera access required');
             });
     </script>
 </body>
