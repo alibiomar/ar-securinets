@@ -3,27 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyberpunk AR GLB Viewer</title>
+    <title>AR GLB Viewer</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
         
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            overflow: hidden;
         }
 
         body {
             width: 100vw;
             height: 100vh;
-            background: linear-gradient(45deg, #1a1a1a, #2d1b69);
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
             font-family: 'Orbitron', monospace;
             overflow: hidden;
             position: relative;
         }
 
-        /* Cyberpunk grid background */
+        /* Animated grid background */
         body::before {
             content: '';
             position: absolute;
@@ -32,37 +31,27 @@
             width: 100%;
             height: 100%;
             background-image: 
-                linear-gradient(rgba(41, 237, 0, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(41, 237, 0, 0.1) 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: gridMove 20s linear infinite;
+                linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: gridMove 15s linear infinite;
             z-index: 1;
         }
 
         @keyframes gridMove {
             0% { transform: translate(0, 0); }
-            100% { transform: translate(50px, 50px); }
+            100% { transform: translate(40px, 40px); }
         }
 
-        @keyframes neonGlow {
+        @keyframes glow {
             0%, 100% { 
-                box-shadow: 0 0 20px #29ed00, 0 0 40px #29ed00, 0 0 60px #29ed00;
-                text-shadow: 0 0 10px #29ed00;
+                box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+                text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
             }
             50% { 
-                box-shadow: 0 0 30px #C400ED, 0 0 50px #C400ED, 0 0 70px #C400ED;
-                text-shadow: 0 0 15px #C400ED;
+                box-shadow: 0 0 30px rgba(255, 0, 255, 0.5);
+                text-shadow: 0 0 15px rgba(255, 0, 255, 0.8);
             }
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
 
         #container {
@@ -72,109 +61,55 @@
             z-index: 10;
         }
 
-        #loading-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(45deg, #1a1a1a, #2d1b69);
-            z-index: 1000;
-            transition: opacity 0.5s ease;
-        }
-
-        #loading-screen.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .loading-spinner {
-            width: 60px;
-            height: 60px;
-            border: 4px solid transparent;
-            border-top: 4px solid #29ed00;
-            border-right: 4px solid #C400ED;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 30px;
-        }
-
-        .loading-text {
-            color: #29ed00;
-            font-size: 18px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            animation: neonGlow 2s ease-in-out infinite;
-        }
-
         #info-panel {
             position: absolute;
-            top: 30px;
-            left: 30px;
-            right: 30px;
-            background: rgba(26, 26, 26, 0.9);
-            border: 2px solid #29ed00;
-            border-radius: 15px;
-            padding: 20px;
-            color: #29ed00;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ffff;
+            border-radius: 10px;
+            padding: 15px;
+            color: #00ffff;
             text-align: center;
             z-index: 100;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 0 30px rgba(41, 237, 0, 0.3);
+            backdrop-filter: blur(5px);
         }
 
         #info-panel h1 {
-            margin: 0 0 10px 0;
-            font-size: 24px;
-            font-weight: 900;
-            color: #C400ED;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            animation: neonGlow 3s ease-in-out infinite;
-        }
-
-        #info-panel p {
-            margin: 0;
-            font-size: 14px;
-            opacity: 0.9;
-            font-weight: 400;
+            font-size: 20px;
+            font-weight: 700;
+            color: #ff00ff;
+            margin-bottom: 5px;
+            animation: glow 2s ease-in-out infinite;
         }
 
         #ar-button {
             position: absolute;
-            bottom: 50px;
+            bottom: 40px;
             left: 50%;
             transform: translateX(-50%);
-            background: linear-gradient(45deg, #29ed00, #1ecf00);
-            border: 2px solid #29ed00;
-            border-radius: 30px;
-            padding: 18px 40px;
-            font-size: 18px;
+            background: linear-gradient(45deg, #00ffff, #0080ff);
+            border: 2px solid #00ffff;
+            border-radius: 25px;
+            padding: 15px 30px;
+            font-size: 16px;
             font-weight: 700;
             color: #000;
             cursor: pointer;
             font-family: 'Orbitron', monospace;
-            text-transform: uppercase;
-            letter-spacing: 2px;
             transition: all 0.3s ease;
             z-index: 100;
-            box-shadow: 0 0 20px rgba(41, 237, 0, 0.5);
         }
 
         #ar-button:hover:not(:disabled) {
-            background: linear-gradient(45deg, #C400ED, #a000c4);
-            border-color: #C400ED;
-            transform: translateX(-50%) translateY(-8px);
-            box-shadow: 0 0 30px rgba(196, 0, 237, 0.8);
+            background: linear-gradient(45deg, #ff00ff, #ff0080);
+            border-color: #ff00ff;
+            transform: translateX(-50%) translateY(-5px);
         }
 
         #ar-button:disabled {
-            background: linear-gradient(45deg, #666, #444);
+            background: #666;
             border-color: #666;
             cursor: not-allowed;
             opacity: 0.6;
@@ -183,35 +118,31 @@
 
         #status {
             position: absolute;
-            bottom: 140px;
+            bottom: 110px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.9);
-            border: 1px solid #29ed00;
-            color: #29ed00;
-            padding: 12px 25px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 700;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #00ffff;
+            color: #00ffff;
+            padding: 10px 20px;
+            border-radius: 15px;
+            font-size: 12px;
             z-index: 100;
             display: none;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            animation: pulse 2s ease-in-out infinite;
         }
 
         #reticle {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 40px;
-            height: 40px;
+            width: 30px;
+            height: 30px;
             transform: translate(-50%, -50%);
-            border: 2px solid #C400ED;
+            border: 2px solid #ff00ff;
             border-radius: 50%;
             z-index: 200;
             display: none;
-            animation: neonGlow 1.5s ease-in-out infinite;
+            animation: glow 1s ease-in-out infinite;
         }
 
         #reticle::before {
@@ -219,12 +150,11 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 8px;
-            height: 8px;
-            background: #29ed00;
+            width: 6px;
+            height: 6px;
+            background: #00ffff;
             border-radius: 50%;
             transform: translate(-50%, -50%);
-            animation: pulse 1s ease-in-out infinite;
         }
 
         canvas {
@@ -233,129 +163,83 @@
             height: 100%;
         }
 
-        .cyber-border {
+        .loading {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            border: 2px solid transparent;
-            background: linear-gradient(45deg, #29ed00, #C400ED, #29ed00, #C400ED) border-box;
-            border-radius: 0;
-            mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-            mask-composite: exclude;
-            z-index: 5;
-            animation: borderShift 4s linear infinite;
-        }
-
-        @keyframes borderShift {
-            0% { background-position: 0% 0%; }
-            100% { background-position: 100% 100%; }
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #00ffff;
+            font-size: 18px;
+            z-index: 1000;
         }
     </style>
 </head>
 <body>
-    <div class="cyber-border"></div>
-    
-    <div id="loading-screen">
-        <div class="loading-spinner"></div>
-        <div class="loading-text">Initializing Cyber Systems</div>
-    </div>
-
     <div id="container">
         <div id="info-panel">
-            <h1>Cyber AR Portal</h1>
-            <p>Neural interface ready • Tap to deploy digital entity</p>
+            <h1>AR Viewer</h1>
+            <p>Place 3D objects in your environment</p>
         </div>
         
         <div id="reticle"></div>
-        <div id="status">Scanning environment...</div>
+        <div id="status">Initializing...</div>
         
         <button id="ar-button" disabled>
-            Booting Neural Link...
+            Checking AR Support...
         </button>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        let scene, camera, renderer, arButton, statusDiv, loadingScreen, reticleDiv;
+        let scene, camera, renderer, arButton, statusDiv, reticleDiv;
         let model = null;
         let reticle = null;
         let hitTestSource = null;
         let hitTestSourceRequested = false;
         let placedObjects = [];
 
-        const GLB_URL = '/logo.glb';
-
         function init() {
-            loadingScreen = document.getElementById('loading-screen');
             statusDiv = document.getElementById('status');
             arButton = document.getElementById('ar-button');
             reticleDiv = document.getElementById('reticle');
 
-            // Create scene with cyberpunk atmosphere
+            // Create scene
             scene = new THREE.Scene();
-
-            // Create camera
             camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
 
             // Create renderer with XR support
             renderer = new THREE.WebGLRenderer({ 
                 antialias: true, 
-                alpha: true,
-                powerPreference: "high-performance"
+                alpha: true 
             });
             renderer.setPixelRatio(window.devicePixelRatio);
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.xr.enabled = true;
-            renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             
             document.getElementById('container').appendChild(renderer.domElement);
 
-            // Cyberpunk lighting setup
-            const ambientLight = new THREE.AmbientLight(0x29ed00, 0.3);
+            // Add lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
             scene.add(ambientLight);
 
-            const directionalLight = new THREE.DirectionalLight(0xC400ED, 1);
-            directionalLight.position.set(5, 10, 5);
-            directionalLight.castShadow = true;
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(1, 1, 1);
             scene.add(directionalLight);
 
-            const neonLight1 = new THREE.PointLight(0x29ed00, 2, 10);
-            neonLight1.position.set(2, 2, 2);
-            scene.add(neonLight1);
-
-            const neonLight2 = new THREE.PointLight(0xC400ED, 2, 10);
-            neonLight2.position.set(-2, 2, -2);
-            scene.add(neonLight2);
-
-            // Create cyberpunk reticle
-            const reticleGeometry = new THREE.RingGeometry(0.1, 0.15, 32).rotateX(-Math.PI / 2);
+            // Create reticle
+            const reticleGeometry = new THREE.RingGeometry(0.08, 0.12, 32).rotateX(-Math.PI / 2);
             const reticleMaterial = new THREE.MeshBasicMaterial({ 
-                color: 0xC400ED,
+                color: 0x00ffff,
                 transparent: true,
-                opacity: 0.8
+                opacity: 0.7
             });
             reticle = new THREE.Mesh(reticleGeometry, reticleMaterial);
             reticle.matrixAutoUpdate = false;
             reticle.visible = false;
             scene.add(reticle);
 
-            // Add reticle glow effect
-            const glowGeometry = new THREE.RingGeometry(0.15, 0.2, 32).rotateX(-Math.PI / 2);
-            const glowMaterial = new THREE.MeshBasicMaterial({ 
-                color: 0x29ed00,
-                transparent: true,
-                opacity: 0.3
-            });
-            const reticleGlow = new THREE.Mesh(glowGeometry, glowMaterial);
-            reticleGlow.matrixAutoUpdate = false;
-            reticleGlow.visible = false;
-            reticle.add(reticleGlow);
-
-            // Load cyberpunk GLB model
-            loadModel();
+            // Create default model (cube)
+            createDefaultModel();
 
             // Check for WebXR support
             checkARSupport();
@@ -368,74 +252,25 @@
 
             // Start render loop
             renderer.setAnimationLoop(render);
-
-            // Hide loading screen after initialization
-            setTimeout(() => {
-                loadingScreen.classList.add('hidden');
-            }, 2000);
         }
 
-        function loadModel() {
-            showStatus('Loading Digital Entity...');
-            
-            const loader = new THREE.GLTFLoader();
-            loader.load(
-                GLB_URL,
-                function(gltf) {
-                    model = gltf.scene;
-                    
-                    // Apply cyberpunk materials
-                    model.traverse((child) => {
-                        if (child.isMesh) {
-                            // Add cyberpunk glow effect
-                            child.material.emissive = new THREE.Color(0x29ed00);
-                            child.material.emissiveIntensity = 0.2;
-                            child.castShadow = true;
-                            child.receiveShadow = true;
-                        }
-                    });
-                    
-                    model.scale.setScalar(0.5);
-                    model.visible = false;
-                    scene.add(model);
-                    
-                    showStatus('Digital Entity Loaded');
-                    hideStatus();
-                },
-                function(progress) {
-                    const percent = Math.round((progress.loaded / progress.total) * 100);
-                    showStatus(`Loading Entity: ${percent}%`);
-                },
-                function(error) {
-                    console.error('Error loading model:', error);
-                    showStatus('Loading Fallback Entity...');
-                    createCyberpunkCube();
-                    hideStatus();
-                }
-            );
-        }
-
-        function createCyberpunkCube() {
-            // Create a cyberpunk-styled cube as fallback
-            const geometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
+        function createDefaultModel() {
+            // Create a simple glowing cube as the default 3D object
+            const geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
             const material = new THREE.MeshPhongMaterial({ 
-                color: 0x29ed00,
-                emissive: 0x1a7a00,
-                emissiveIntensity: 0.3,
-                shininess: 100,
+                color: 0x00ffff,
+                emissive: 0x004444,
                 transparent: true,
                 opacity: 0.9
             });
             
             model = new THREE.Mesh(geometry, material);
-            model.castShadow = true;
-            model.receiveShadow = true;
             model.visible = false;
             scene.add(model);
 
-            // Add wireframe overlay
+            // Add wireframe
             const wireframeGeometry = new THREE.EdgesGeometry(geometry);
-            const wireframeMaterial = new THREE.LineBasicMaterial({ color: 0xC400ED });
+            const wireframeMaterial = new THREE.LineBasicMaterial({ color: 0xff00ff });
             const wireframe = new THREE.LineSegments(wireframeGeometry, wireframeMaterial);
             model.add(wireframe);
         }
@@ -445,17 +280,17 @@
                 navigator.xr.isSessionSupported('immersive-ar').then((supported) => {
                     if (supported) {
                         arButton.disabled = false;
-                        arButton.textContent = 'Initialize AR';
-                        showStatus('Neural Interface Ready');
+                        arButton.textContent = 'Start AR';
+                        showStatus('AR Ready');
                         hideStatus();
                     } else {
-                        arButton.textContent = 'AR Not Compatible';
-                        showStatus('Device not compatible with neural interface');
+                        arButton.textContent = 'AR Not Supported';
+                        showStatus('AR not supported on this device');
                     }
                 });
             } else {
-                arButton.textContent = 'WebXR Unavailable';
-                showStatus('Neural interface not available in this browser');
+                arButton.textContent = 'WebXR Not Available';
+                showStatus('WebXR not available in this browser');
             }
         }
 
@@ -469,7 +304,7 @@
 
         async function startARSession() {
             try {
-                showStatus('Establishing Neural Link...');
+                showStatus('Starting AR...');
                 
                 const session = await navigator.xr.requestSession('immersive-ar', {
                     requiredFeatures: ['hit-test'],
@@ -480,12 +315,11 @@
                 session.addEventListener('end', onSessionEnd);
                 await renderer.xr.setSession(session);
                 
-                arButton.textContent = 'Disconnect';
-                arButton.style.background = 'linear-gradient(45deg, #C400ED, #a000c4)';
-                arButton.style.borderColor = '#C400ED';
+                arButton.textContent = 'Stop AR';
+                arButton.style.background = 'linear-gradient(45deg, #ff00ff, #ff0080)';
                 
                 reticleDiv.style.display = 'block';
-                showStatus('Tap to deploy entity');
+                showStatus('Tap to place object');
 
                 // Set up hit testing
                 session.requestReferenceSpace('viewer').then((referenceSpace) => {
@@ -497,11 +331,10 @@
                 hitTestSourceRequested = true;
 
             } catch (error) {
-                console.error('Error starting AR session:', error);
-                showStatus('Neural link failed');
-                arButton.textContent = 'Initialize AR';
-                arButton.style.background = 'linear-gradient(45deg, #29ed00, #1ecf00)';
-                arButton.style.borderColor = '#29ed00';
+                console.error('AR session failed:', error);
+                showStatus('AR failed to start');
+                arButton.textContent = 'Start AR';
+                arButton.style.background = 'linear-gradient(45deg, #00ffff, #0080ff)';
             }
         }
 
@@ -514,9 +347,8 @@
             // Hide all placed objects
             placedObjects.forEach(obj => obj.visible = false);
             
-            arButton.textContent = 'Initialize AR';
-            arButton.style.background = 'linear-gradient(45deg, #29ed00, #1ecf00)';
-            arButton.style.borderColor = '#29ed00';
+            arButton.textContent = 'Start AR';
+            arButton.style.background = 'linear-gradient(45deg, #00ffff, #0080ff)';
             hideStatus();
         }
 
@@ -535,7 +367,7 @@
                         reticle.visible = true;
                         reticle.matrix.fromArray(hit.getPose(referenceSpace).transform.matrix);
 
-                        // Handle touch/click to place object
+                        // Handle tap to place object
                         session.addEventListener('select', () => placeObject(hit, referenceSpace));
                     } else {
                         reticle.visible = false;
@@ -543,10 +375,10 @@
                 }
 
                 // Animate placed objects
-                placedObjects.forEach((obj, index) => {
+                placedObjects.forEach((obj) => {
                     if (obj.visible) {
-                        obj.rotation.y += 0.02;
-                        obj.position.y += Math.sin(timestamp * 0.003 + index) * 0.001;
+                        obj.rotation.y += 0.01;
+                        obj.rotation.x += 0.005;
                     }
                 });
             }
@@ -556,75 +388,27 @@
 
         function placeObject(hit, referenceSpace) {
             if (reticle.visible && model) {
-                // Clone the model for multiple placements
                 const newModel = model.clone();
                 newModel.position.setFromMatrixPosition(reticle.matrix);
                 newModel.visible = true;
                 
-                // Add cyberpunk spawn effect
+                // Spawn animation
                 newModel.scale.setScalar(0);
-                const targetScale = 0.5;
-                
-                // Animate spawn
-                const spawnAnimation = () => {
-                    if (newModel.scale.x < targetScale) {
-                        newModel.scale.addScalar(0.02);
-                        requestAnimationFrame(spawnAnimation);
-                    }
-                };
-                spawnAnimation();
+                animateScale(newModel, 0.5);
                 
                 placedObjects.push(newModel);
                 scene.add(newModel);
                 
-                showStatus('Entity Deployed');
+                showStatus('Object placed!');
                 hideStatus();
-                
-                // Create particle effect
-                createParticleEffect(newModel.position);
             }
         }
 
-        function createParticleEffect(position) {
-            const particleCount = 20;
-            const particles = new THREE.Group();
-            
-            for (let i = 0; i < particleCount; i++) {
-                const particleGeometry = new THREE.SphereGeometry(0.005, 8, 8);
-                const particleMaterial = new THREE.MeshBasicMaterial({ 
-                    color: Math.random() > 0.5 ? 0x29ed00 : 0xC400ED,
-                    transparent: true,
-                    opacity: 0.8
-                });
-                const particle = new THREE.Mesh(particleGeometry, particleMaterial);
-                
-                particle.position.copy(position);
-                particle.velocity = new THREE.Vector3(
-                    (Math.random() - 0.5) * 0.1,
-                    Math.random() * 0.1,
-                    (Math.random() - 0.5) * 0.1
-                );
-                
-                particles.add(particle);
+        function animateScale(object, targetScale) {
+            if (object.scale.x < targetScale) {
+                object.scale.addScalar(0.02);
+                requestAnimationFrame(() => animateScale(object, targetScale));
             }
-            
-            scene.add(particles);
-            
-            // Animate particles
-            let life = 100;
-            const animateParticles = () => {
-                if (life-- > 0) {
-                    particles.children.forEach(particle => {
-                        particle.position.add(particle.velocity);
-                        particle.velocity.y -= 0.002;
-                        particle.material.opacity *= 0.95;
-                    });
-                    requestAnimationFrame(animateParticles);
-                } else {
-                    scene.remove(particles);
-                }
-            };
-            animateParticles();
         }
 
         function onWindowResize() {
@@ -641,58 +425,10 @@
         function hideStatus() {
             setTimeout(() => {
                 statusDiv.style.display = 'none';
-            }, 3000);
+            }, 2000);
         }
 
-        // Enhanced GLTFLoader with cyberpunk styling
-        THREE.GLTFLoader = class {
-            load(url, onLoad, onProgress, onError) {
-                const loader = new THREE.FileLoader();
-                loader.setResponseType('arraybuffer');
-                loader.load(url, (data) => {
-                    try {
-                        this.parse(data, onLoad, onError);
-                    } catch (error) {
-                        if (onError) onError(error);
-                    }
-                }, onProgress, onError);
-            }
-
-            parse(data, onLoad, onError) {
-                try {
-                    // Create cyberpunk-styled object
-                    const geometry = new THREE.OctahedronGeometry(0.2, 2);
-                    const material = new THREE.MeshPhongMaterial({ 
-                        color: 0x29ed00,
-                        emissive: 0x0a4d00,
-                        emissiveIntensity: 0.4,
-                        shininess: 200,
-                        transparent: true,
-                        opacity: 0.9
-                    });
-                    const mesh = new THREE.Mesh(geometry, material);
-                    
-                    // Add wireframe overlay
-                    const wireframeGeometry = new THREE.EdgesGeometry(geometry);
-                    const wireframeMaterial = new THREE.LineBasicMaterial({ 
-                        color: 0xC400ED,
-                        transparent: true,
-                        opacity: 0.8
-                    });
-                    const wireframe = new THREE.LineSegments(wireframeGeometry, wireframeMaterial);
-                    mesh.add(wireframe);
-                    
-                    const scene = new THREE.Group();
-                    scene.add(mesh);
-                    
-                    onLoad({ scene: scene });
-                } catch (error) {
-                    if (onError) onError(error);
-                }
-            }
-        };
-
-        // Initialize the cyberpunk AR experience
+        // Initialize
         document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
