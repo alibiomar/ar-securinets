@@ -486,7 +486,7 @@
     }
 
     async function checkStage1() {
-        const input = document.getElementById('input1').value.trim().toUpperCase();
+        const input = document.getElementById('input1').value.trim();
         const hash = await sha1(input);
         if (hash === validAnswers.stage1) {
             showStatus(1, "Stage 1 Complete! Base64 decoded successfully.", true);
@@ -499,7 +499,7 @@
     }
 
     async function checkStage2() {
-        const input = document.getElementById('input2').value.trim().toUpperCase();
+        const input = document.getElementById('input2').value.trim();
         const hash = await sha1(input);
         if (hash === validAnswers.stage2) {
             showStatus(2, "Stage 2 Complete! Packet analyzed successfully.", true);
