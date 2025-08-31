@@ -385,7 +385,7 @@
             
             <div class="hidden-flag">
                 <!-- Hidden hint in source: Check HTTP headers and cookies for Base64 -->
-                UVAG: Ybbx ng gur negu pbbxvr va gur cnpxrg pncgher
+                HINT: Look at the auth cookie in the packet capture
             </div>
         </div>
 
@@ -447,38 +447,19 @@
         let currentStage = 1;
         const totalStages = 3;
 
-        // Obfuscated validation using hash comparison instead of plain text
-        const validationHashes = {
-            stage1: '7c689ddc692dcf9ba9b1e465624266b5',
-            stage2: 'f891227dc06a189bf3221495bc7cb52b' 
+        // Valid answers for each stage
+        const validAnswers = {
+            stage1: "615db18877a1ae23830749470cd1667333c4dba4",
+            stage2: "d1b26f24323b9c3dd75fb1cf3ba966c8dee4f119"
         };
 
-        // Simple hash function for client-side validation
+        // Simple hash function for client-side validation using SHA-256
         async function simpleHash(str) {
             const encoder = new TextEncoder();
             const data = encoder.encode(str);
             const hashBuffer = await crypto.subtle.digest('SHA-256', data);
             const hashArray = Array.from(new Uint8Array(hashBuffer));
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        }
-
-        // Alternative: Use a custom obfuscation
-        function obfuscateCheck(input, stage) {
-            const shifts = [7, 13, 21]; // Different shifts for each stage
-            let result = '';
-            
-            for (let i = 0; i < input.length; i++) {
-                let charCode = input.charCodeAt(i);
-                charCode = ((charCode - 32 + shifts[stage - 1]) % 95) + 32;
-                result += String.fromCharCode(charCode);
-            }
-            
-            const expectedResults = {
-                1: 'ZLZH[PULY[ZLUPAZ\\N*SJ*T*K*-[MK[*YK,\\',
-                2: 'ZlJb_PulaZLUPA\\W-JS5-a6BuS-SfoV8K\\'
-            };
-            
-            return result === expectedResults[stage];
         }
 
         function showStatus(stageId, message, isSuccess = false) {
@@ -504,10 +485,10 @@
             }
         }
 
-        function checkStage1() {
+        async function checkStage1() {
             const input = document.getElementById('input1').value.trim().toUpperCase();
-            
-            if (obfuscateCheck(input, 1)) {
+            const simpleHash = await simpleHash(input);
+            if (simpleHash === validAnswers.stage1) {
                 showStatus(1, "Stage 1 Complete! Base64 decoded successfully.", true);
                 updateProgress(1, 33);
                 setTimeout(advanceStage, 1500);
@@ -517,10 +498,10 @@
             }
         }
 
-        function checkStage2() {
-            const input = document.getElementById('input2').value.trim();
-            
-            if (obfuscateCheck(input, 2)) {
+        async function checkStage2() {
+            const input = document.getElementById('input2').value.trim().toUpperCase();
+            const simpleHash = await simpleHash(input);
+            if (simpleHash === validAnswers.stage2) {
                 showStatus(2, "Stage 2 Complete! Packet analyzed successfully.", true);
                 updateProgress(2, 66);
                 setTimeout(advanceStage, 1500);
