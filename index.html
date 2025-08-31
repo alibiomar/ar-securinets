@@ -425,7 +425,7 @@
                     font="dejavu"
                     align="center"
                     width="6"
-                    animation__glow="property: material.emissive; to: #003300; dur: 1000; dir: alternate; loop: true">
+                    animation__glow="property: material.color; to: #00ff41; dur: 1000; dir: alternate; loop: true">
                 </a-text>
             </a-entity>
 
@@ -517,77 +517,114 @@
                 const applyGreenMaterial = () => {
                     if (materialApplied) return;
                     
+                    // Wait for model to be fully loaded
                     const model = el.getObject3D('mesh');
-                    if (model) {
-                        console.log('🎨 Applying cyberpunk green material');
-                        materialApplied = true;
-                        
-                        model.traverse(function (child) {
-                            if (child.isMesh && child.material) {
-                                const original = child.material;
+                    if (!model) {
+                        console.log('🔄 Model not ready, retrying...');
+                        return;
+                    }
+                    
+                    console.log('🎨 Applying cyberpunk green material');
+                    materialApplied = true;
+                    
+                    model.traverse(function (child) {
+                        if (child.isMesh) {
+                            try {
+                                let material = child.material;
                                 
-                                try {
-                                    // Safely apply green cyberpunk colors
-                                    if (original.color && typeof original.color.setHex === 'function') {
-                                        original.color.setHex(0x29ed00);
-                                    }
-                                    
-                                    // Handle emissive property safely
-                                    if (original.emissive && typeof original.emissive.setHex === 'function') {
-                                        original.emissive.setHex(0x003300);
-                                    } else if (original.emissive === undefined) {
-                                        // Create emissive property if it doesn't exist
-                                        original.emissive = new THREE.Color(0x003300);
-                                    }
-                                    
-                                    // Handle emissive intensity
-                                    if ('emissiveIntensity' in original) {
-                                        original.emissiveIntensity = 0.4;
-                                    }
-                                    
-                                    // Handle transparency
-                                    if ('transparent' in original) {
-                                        original.transparent = true;
-                                        original.opacity = 0.95;
-                                    }
-                                    
-                                    // Force material update
-                                    original.needsUpdate = true;
-                                    
-                                } catch (error) {
-                                    console.warn('⚠️ Could not apply material properties to mesh:', error);
-                                    
-                                    // Fallback: try to replace with a basic green material
-                                    try {
-                                        const greenMaterial = new THREE.MeshBasicMaterial({
-                                            color: 0x29ed00,
-                                            transparent: true,
-                                            opacity: 0.9
-                                        });
-                                        child.material = greenMaterial;
-                                    } catch (fallbackError) {
-                                        console.warn('⚠️ Fallback material application failed:', fallbackError);
-                                    }
+                                // Handle array of materials
+                                if (Array.isArray(material)) {
+                                    material.forEach(mat => applyMaterialProperties(mat));
+                                } else if (material) {
+                                    applyMaterialProperties(material);
                                 }
+                            } catch (error) {
+                                console.warn('⚠️ Error processing mesh material:', error);
                             }
+                        }
+                    });
+                    
+                    // Add holographic rotation animation
+                    el.setAttribute('animation__rotate', {
+                        property: 'rotation',
+                        to: '0 360 0',
+                        dur: 8000,
+                        loop: true,
+                        easing: 'linear'
+                    });
+                    
+                    // Add subtle scale pulse
+                    el.setAttribute('animation__pulse', {
+                        property: 'scale',
+                        to: '0.85 0.85 0.85',
+                        dur: 3000,
+                        dir: 'alternate',
+                        loop: true,
+                        easing: 'easeInOutSine'
+                    });
+                };
+                
+                const applyMaterialProperties = (material) => {
+                    if (!material) return;
+                    
+                    try {
+                        // Safely apply color
+                        if (material.color && typeof material.color.setHex === 'function') {
+                            material.color.setHex(0x29ed00);
+                        }
+                        
+                        // Handle emissive safely
+                        if (material.emissive !== undefined) {
+                            if (typeof material.emissive.setHex === 'function') {
+                                material.emissive.setHex(0x003300);
+                            } else if (material.emissive === null) {
+                                material.emissive = new THREE.Color(0x003300);
+                            }
+                        }
+                        
+                        // Handle emissive intensity
+                        if ('emissiveIntensity' in material) {
+                            material.emissiveIntensity = 0.3;
+                        }
+                        
+                        // Handle transparency
+                        if ('transparent' in material && 'opacity' in material) {
+                            material.transparent = true;
+                            material.opacity = 0.95;
+                        }
+                        
+                        // Force update
+                        material.needsUpdate = true;
+                        
+                    } catch (error) {
+                        console.warn('⚠️ Could not modify material properties:', error);
+                        
+                        // Create a completely new material as fallback
+                        const newMaterial = new THREE.MeshStandardMaterial({
+                            color: 0x29ed00,
+                            emissive: 0x003300,
+                            emissiveIntensity: 0.3,
+                            transparent: true,
+                            opacity: 0.95
                         });
                         
-                        // Add holographic rotation
-                        el.setAttribute('animation__rotate', {
-                            property: 'rotation',
-                            to: '0 360 0',
-                            dur: 8000,
-                            loop: true,
-                            easing: 'linear'
-                        });
+                        // Replace the material
+                        if (material.parent && material.parent.material) {
+                            material.parent.material = newMaterial;
+                        }
                     }
                 };
                 
-                // Multiple attempts to apply material
-                el.addEventListener('model-loaded', applyGreenMaterial);
+                // Event-based loading
+                el.addEventListener('model-loaded', () => {
+                    console.log('📦 Model loaded event triggered');
+                    setTimeout(applyGreenMaterial, 100);
+                });
+                
+                // Backup timers
                 setTimeout(applyGreenMaterial, 1000);
-                setTimeout(applyGreenMaterial, 3000);
-                setTimeout(applyGreenMaterial, 5000);
+                setTimeout(applyGreenMaterial, 2000);
+                setTimeout(applyGreenMaterial, 4000);
             }
         });
 
