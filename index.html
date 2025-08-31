@@ -373,7 +373,7 @@
             </div>
             
             <div class="cipher-text" id="cipher1">
-                U0VDVVJJTkVUU0VOSVR7VzNMQzBNM0QzNFJGUjEzTkQ1fQ==
+                U2VjdXJpbmV0c0VOSVR7dzNsQzBtM2QzNHJGUjEzbkQ1fQ==
             </div>
             
             <input type="text" class="challenge-input" id="input1" placeholder="Enter decoded message..." maxlength="100">
@@ -398,12 +398,12 @@
             </div>
             
             <div class="cipher-text" id="cipher2" style="font-size: 0.9em; line-height: 1.4;">
-                GET /login.php?user=admin&pass=c3VwZXJzZWNyZXQ%3D HTTP/1.1<br>
+                GET /login.php?user=admin&pass=RjazN0X0FuNGx5ejNkfQ== HTTP/1.1<br>
                 Host: securinets.challenge<br>
                 User-Agent: Mozilla/5.0 (X11; Linux x86_64)<br>
                 Accept: text/html,application/xhtml+xml<br>
                 Connection: keep-alive<br>
-                Cookie: session=dGVzdF91c2Vy; auth=U2VjdXJpbmV0c0VOSVR7UDRjazN0X0FuNGx5ejNkfQ==<br>
+                Cookie: session=dGVzdF91c2Vy; auth=U2VjdXJpbmV0c0VOSVR7UD<br>
                 X-Forwarded-For: 192.168.1.100
             </div>
             
@@ -443,9 +443,43 @@
         </div>
     </div>
 
-    <script>
+   <script>
         let currentStage = 1;
         const totalStages = 3;
+
+        // Obfuscated validation using hash comparison instead of plain text
+        const validationHashes = {
+            stage1: '7c689ddc692dcf9ba9b1e465624266b5',
+            stage2: 'f891227dc06a189bf3221495bc7cb52b' 
+        };
+
+        // Simple hash function for client-side validation
+        async function simpleHash(str) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(str);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // Alternative: Use a custom obfuscation
+        function obfuscateCheck(input, stage) {
+            const shifts = [7, 13, 21]; // Different shifts for each stage
+            let result = '';
+            
+            for (let i = 0; i < input.length; i++) {
+                let charCode = input.charCodeAt(i);
+                charCode = ((charCode - 32 + shifts[stage - 1]) % 95) + 32;
+                result += String.fromCharCode(charCode);
+            }
+            
+            const expectedResults = {
+                1: 'ZLZH[PULY[ZLUPAZ\\N*SJ*T*K*-[MK[*YK,\\',
+                2: 'ZlJb_PulaZLUPA\\W-JS5-a6BuS-SfoV8K\\'
+            };
+            
+            return result === expectedResults[stage];
+        }
 
         function showStatus(stageId, message, isSuccess = false) {
             const statusEl = document.getElementById(`status${stageId}`);
@@ -472,9 +506,8 @@
 
         function checkStage1() {
             const input = document.getElementById('input1').value.trim().toUpperCase();
-            const correct = "SECURINETSENIT{W3LC0M3D34RFR13ND5}";
             
-            if (input === correct) {
+            if (obfuscateCheck(input, 1)) {
                 showStatus(1, "Stage 1 Complete! Base64 decoded successfully.", true);
                 updateProgress(1, 33);
                 setTimeout(advanceStage, 1500);
@@ -485,10 +518,9 @@
         }
 
         function checkStage2() {
-            const input = document.getElementById('input2').value.trim().toLowerCase();
-            const correct = "SecurinetsENIT{P4ck3t_An4lyz3d}";
+            const input = document.getElementById('input2').value.trim();
             
-            if (input === correct) {
+            if (obfuscateCheck(input, 2)) {
                 showStatus(2, "Stage 2 Complete! Packet analyzed successfully.", true);
                 updateProgress(2, 66);
                 setTimeout(advanceStage, 1500);
@@ -500,7 +532,7 @@
 
         // Add some matrix-like effect
         function createMatrixRain() {
-            const chars = "01アカサタナハマヤラワガザダバパABCDEF";
+            const chars = "01アカサタナハマヤラワガザダバパOMAR-ALIBI";
             const matrixContainer = document.createElement('div');
             matrixContainer.style.position = 'fixed';
             matrixContainer.style.top = '0';
@@ -561,8 +593,9 @@
         }, 1000);
 
         console.log("Securinets Challenge System Initialized");
-        console.log("Hint: View source for additional clues...");
+        console.log("Security Level: Enhanced");
         console.log("Target acquired: Multi-stage penetration testing challenge");
+        console.log("Note: Source analysis will not reveal challenge solutions");
     </script>
 </body>
 </html>
