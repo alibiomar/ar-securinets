@@ -373,7 +373,7 @@
             </div>
             
             <div class="cipher-text" id="cipher1">
-                U2VjdXJpbmV0c0VOSVR7dzNsQzBtM2QzNHJGUjEzblE1fQ==
+                U0VDVVJJTkVUU0VOSVR7VzNMQzBNM0QzNFJGUjEzTkQ1fQ==
             </div>
             
             <input type="text" class="challenge-input" id="input1" placeholder="Enter decoded message..." maxlength="100">
@@ -472,7 +472,6 @@
 
         function checkStage1() {
             const input = document.getElementById('input1').value.trim().toUpperCase();
-            // Base64 decoded: "SecurinetsENIT{w3lC0m3d34rFR13nD5}"
             const correct = "SECURINETSENIT{W3LC0M3D34RFR13ND5}";
             
             if (input === correct) {
@@ -487,8 +486,7 @@
 
         function checkStage2() {
             const input = document.getElementById('input2').value.trim().toLowerCase();
-            // Base64 decoded auth cookie: "SecurinetsENIT{P4ck3t_An4lyz3d}"
-            const correct = "securinetsenit{p4ck3t_an4lyz3d}";
+            const correct = "SecurinetsENIT{P4ck3t_An4lyz3d}";
             
             if (input === correct) {
                 showStatus(2, "Stage 2 Complete! Packet analyzed successfully.", true);
