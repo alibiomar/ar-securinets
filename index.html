@@ -453,12 +453,12 @@
             stage2: "d1b26f24323b9c3dd75fb1cf3ba966c8dee4f119"
         };
 
-        // Simple hash function for client-side validation using SHA-256
         async function simpleHash(str) {
             const encoder = new TextEncoder();
             const data = encoder.encode(str);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashBuffer = await crypto.subtle.digest('SHA-1', data);
             const hashArray = Array.from(new Uint8Array(hashBuffer));
+            console.log(hashArray);
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
