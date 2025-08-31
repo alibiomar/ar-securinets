@@ -68,7 +68,7 @@
             <a-asset-item id="logo" src="logo.glb"></a-asset-item>
         </a-assets>
 
-<a-camera position="0 0 0" look-controls="enabled: true">
+<a-camera position="0 0 0" look-controls="enabled: false">
   <a-cursor
     raycaster="objects: .clickable"
     fuse="false"
@@ -126,6 +126,14 @@
             console.log('Model loaded');
             status.textContent = 'Ready - Point at target';
         });
+model.addEventListener('model-loaded', (e) => {
+    const obj = e.detail.model;
+    obj.traverse((node) => {
+        if (node.isMesh) {
+            node.material.color.set("#00ff00");
+        }
+    });
+});
 
         model.addEventListener('model-error', () => {
             console.log('Model failed, using fallback');
