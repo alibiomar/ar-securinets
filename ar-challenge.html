@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Securinets AR Challenge</title>
+    
+    <!-- MindAR Dependencies -->
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+        "mindar-image-three":"https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"
+      }
+    }
+    </script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@300;400;500&display=swap');
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background: #000;
+            overflow: hidden;
+        }
+
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(0, 255, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 255, 0, 0.05) 0%, transparent 50%),
+                linear-gradient(45deg, #000 0%, #001100 50%, #000 100%);
+            animation: backgroundPulse 4s ease-in-out infinite alternate;
+            z-index: -1;
+        }
+
+        @keyframes backgroundPulse {
+            0% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+
+        /* Header Info Panel */
+        #info {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, 
+                rgba(0, 0, 0, 0.95) 0%, 
+                rgba(0, 50, 0, 0.9) 50%, 
+                rgba(0, 0, 0, 0.95) 100%);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            z-index: 1000;
+            box-shadow: 
+                0 8px 32px rgba(0, 255, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            animation: slideInTop 1s ease-out;
+        }
+
+        @keyframes slideInTop {
+            from {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        #info h3 {
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: 24px;
+            color: #00ff00;
+            margin: 0 0 10px 0;
+            text-shadow: 
+                0 0 10px rgba(0, 255, 0, 0.8),
+                0 0 20px rgba(0, 255, 0, 0.6),
+                0 0 30px rgba(0, 255, 0, 0.4);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        #info p {
+            color: rgba(255, 255, 255, 0.9);
+            margin: 0;
+            font-size: 16px;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+
+        /* Status Display */
+        #status {
+            position: fixed;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(45deg, 
+                rgba(0, 0, 0, 0.9) 0%, 
+                rgba(0, 100, 0, 0.8) 50%, 
+                rgba(0, 0, 0, 0.9) 100%);
+            color: #00ff00;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            z-index: 1000;
+            border: 2px solid rgba(0, 255, 0, 0.5);
+            box-shadow: 
+                0 4px 20px rgba(0, 255, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            animation: pulseGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            0% {
+                box-shadow: 
+                    0 4px 20px rgba(0, 255, 0, 0.3),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            }
+            100% {
+                box-shadow: 
+                    0 6px 25px rgba(0, 255, 0, 0.5),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            }
+        }
+
+        /* AR Button */
+        #ar-button {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, 
+                #00ff00 0%, 
+                #00cc00 25%, 
+                #00aa00 50%, 
+                #00cc00 75%, 
+                #00ff00 100%);
+            background-size: 200% 200%;
+            color: #000;
+            border: none;
+            padding: 18px 36px;
+            border-radius: 30px;
+            font-family: 'Orbitron', monospace;
+            font-size: 16px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            z-index: 1000;
+            display: none;
+            box-shadow: 
+                0 8px 25px rgba(0, 255, 0, 0.4),
+                inset 0 2px 0 rgba(255, 255, 255, 0.3),
+                inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: buttonSlideIn 0.8s ease-out, gradientShift 3s ease-in-out infinite;
+        }
+
+        @keyframes buttonSlideIn {
+            from {
+                transform: translateX(-50%) translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        #ar-button:hover {
+            transform: translateX(-50%) translateY(-5px) scale(1.05);
+            box-shadow: 
+                0 12px 35px rgba(0, 255, 0, 0.6),
+                inset 0 2px 0 rgba(255, 255, 255, 0.4),
+                inset 0 -2px 0 rgba(0, 0, 0, 0.3);
+            filter: brightness(1.1);
+        }
+
+        #ar-button:active {
+            transform: translateX(-50%) translateY(-2px) scale(1.02);
+            box-shadow: 
+                0 6px 20px rgba(0, 255, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        /* Loading Animation */
+        .loading-spinner {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(0, 255, 0, 0.2);
+            border-top: 3px solid #00ff00;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            z-index: 1001;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Scan Lines Effect */
+        .scan-lines::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                transparent 50%,
+                rgba(0, 255, 0, 0.03) 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 999;
+            animation: scanLines 0.1s linear infinite;
+        }
+
+        @keyframes scanLines {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(4px); }
+        }
+
+        /* Target Found Effect */
+        .target-found {
+            animation: targetFoundPulse 1s ease-out;
+        }
+
+        @keyframes targetFoundPulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.8);
+            }
+            50% {
+                box-shadow: 0 0 0 20px rgba(0, 255, 0, 0.4);
+            }
+            100% {
+                box-shadow: 0 0 0 40px rgba(0, 255, 0, 0);
+            }
+        }
+
+        /* Corner Brackets */
+        .corner-brackets {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            pointer-events: none;
+            z-index: 998;
+            display: none;
+        }
+
+        .corner-brackets::before,
+        .corner-brackets::after {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 3px solid #00ff00;
+        }
+
+        .corner-brackets::before {
+            top: 0;
+            left: 0;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .corner-brackets::after {
+            bottom: 0;
+            right: 0;
+            border-left: none;
+            border-top: none;
+        }
+
+        .corner-brackets .top-right,
+        .corner-brackets .bottom-left {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 3px solid #00ff00;
+        }
+
+        .corner-brackets .top-right {
+            top: 0;
+            right: 0;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .corner-brackets .bottom-left {
+            bottom: 0;
+            left: 0;
+            border-right: none;
+            border-top: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            #info {
+                margin: 10px;
+                padding: 15px;
+            }
+            
+            #info h3 {
+                font-size: 20px;
+            }
+            
+            #ar-button {
+                padding: 15px 30px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body class="scan-lines">
+    <div class="loading-spinner" id="loading"></div>
+    
+    <div id="info">
+        <h3>Securinets ENIT</h3>
+        <p>Advanced AR Challenge System • Find the hidden flag to unlock your potential</p>
+    </div>
+
+    <div class="corner-brackets" id="brackets">
+        <div class="top-right"></div>
+        <div class="bottom-left"></div>
+    </div>
+
+    <div id="status">Initializing AR System...</div>
+
+    <button id="ar-button" onclick="openForm()">
+        Join Securinets
+    </button>
+
+    <a-scene
+        mindar-image="imageTargetSrc: targets.mind;"
+        color-space="sRGB"
+        vr-mode-ui="enabled: false"
+        device-orientation-permission-ui="enabled: false"
+        background="color: #000000; transparent: true"
+    >
+        <a-assets>
+            <a-asset-item id="logo" src="logo.glb"></a-asset-item>
+        </a-assets>
+
+        <a-camera position="0 0 0" look-controls="enabled: false">
+        </a-camera>
+
+        <a-entity id="target" mindar-image-target="targetIndex: 0">
+            <!-- Enhanced GLB Model with better effects -->
+            <a-entity
+                gltf-model="#logo"
+                scale="0.2 0.2 0.2"
+                rotation="180 0 0"
+                visible="false"
+                id="model"
+                animation__rotation="property: rotation; to: 0 360 360; loop: true; dur: 6000; easing: easeInOutQuad"
+                animation__float="property: position; to: 0 0.2 0; dir: alternate; loop: true; dur: 3000; easing: easeInOutSine">
+            </a-entity>
+
+            <!-- Enhanced Fallback Cube with better styling -->
+            <a-box
+                color="#00ff00"
+                scale="0.6 0.6 0.6"
+                visible="false"
+                id="fallback"
+                class="clickable"
+                material="emissive: #003300; emissiveIntensity: 0.3; roughness: 0.1; metalness: 0.8"
+                animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: easeInOutQuad"
+                animation__scale="property: scale; to: 0.7 0.7 0.7; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine">
+                
+                <!-- Wireframe overlay -->
+                <a-box
+                    scale="1.1 1.1 1.1"
+                    material="wireframe: true; color: #00ff00; opacity: 0.5"
+                    animation="property: rotation; to: 360 0 360; loop: true; dur: 8000">
+                </a-box>
+                
+                <!-- Particle effect placeholder -->
+                <a-sphere
+                    scale="2 2 2"
+                    material="color: #00ff00; opacity: 0.1; transparent: true"
+                    animation="property: scale; to: 3 3 3; dir: alternate; loop: true; dur: 1500">
+                </a-sphere>
+            </a-box>
+
+            <!-- AR Effect Ring -->
+            <a-ring
+                id="effect-ring"
+                radius-inner="0.8"
+                radius-outer="1"
+                color="#00ff00"
+                material="opacity: 0.3; transparent: true"
+                visible="false"
+                rotation="-90 0 0"
+                animation="property: scale; to: 2 2 2; loop: true; dur: 2000; dir: alternate; easing: easeInOutQuad">
+            </a-ring>
+        </a-entity>
+
+        <!-- Ambient lighting for better model visibility -->
+        <a-light type="ambient" color="#ffffff" intensity="0.5"></a-light>
+        <a-light type="directional" position="2 4 2" color="#ffffff" intensity="0.8"></a-light>
+    </a-scene>
+
+    <script>
+        const status = document.getElementById('status');
+        const target = document.getElementById('target');
+        const model = document.getElementById('model');
+        const fallback = document.getElementById('fallback');
+        const arButton = document.getElementById('ar-button');
+        const loading = document.getElementById('loading');
+        const brackets = document.getElementById('brackets');
+        const effectRing = document.getElementById('effect-ring');
+        
+        let isTracking = false;
+        let modelLoaded = false;
+        let foundEffectPlayed = false;
+
+        function openForm() {
+            // Add click effect
+            arButton.style.transform = 'translateX(-50%) translateY(-2px) scale(0.98)';
+            setTimeout(() => {
+                arButton.style.transform = 'translateX(-50%) translateY(-5px) scale(1.05)';
+            }, 150);
+            
+            window.open("https://forms.gle/bLxr4usYxnx2WHSm7", "_blank");
+        }
+
+        function showButton() {
+            if (modelLoaded && isTracking) {
+                arButton.style.display = 'block';
+                setTimeout(() => {
+                    arButton.style.animation = 'buttonSlideIn 0.8s ease-out, gradientShift 3s ease-in-out infinite';
+                }, 100);
+            }
+        }
+
+        function hideButton() {
+            arButton.style.display = 'none';
+        }
+
+        function updateStatus(text, type = 'normal') {
+            status.textContent = text;
+            
+            if (type === 'found') {
+                status.classList.add('target-found');
+                setTimeout(() => status.classList.remove('target-found'), 1000);
+            }
+        }
+
+        function showLoading() {
+            loading.style.display = 'block';
+        }
+
+        function hideLoading() {
+            loading.style.display = 'none';
+        }
+
+        function showBrackets() {
+            brackets.style.display = 'block';
+        }
+
+        function hideBrackets() {
+            brackets.style.display = 'none';
+        }
+
+        // Enhanced target tracking with effects
+        target.addEventListener('targetFound', () => {
+            isTracking = true;
+            foundEffectPlayed = true;
+            
+            updateStatus('Target Acquired!', 'found');
+            model.setAttribute('visible', true);
+            effectRing.setAttribute('visible', true);
+            showBrackets();
+            showButton();
+            
+            // Trigger success sound effect (if available)
+            console.log('Target found - success effect triggered');
+        });
+
+        target.addEventListener('targetLost', () => {
+            isTracking = false;
+            foundEffectPlayed = false;
+            
+            updateStatus('Scanning for target...');
+            model.setAttribute('visible', false);
+            fallback.setAttribute('visible', false);
+            effectRing.setAttribute('visible', false);
+            hideBrackets();
+            hideButton();
+        });
+
+        // Enhanced model loading with better feedback
+        model.addEventListener('model-loaded', () => {
+            console.log('3D Model loaded successfully');
+            modelLoaded = true;
+            hideLoading();
+            updateStatus('System Ready - Point camera at target');
+            
+            if (isTracking) showButton();
+        });
+
+        // Enhanced model styling
+        model.addEventListener('model-loaded', (e) => {
+            const obj = e.detail.model;
+            obj.traverse((node) => {
+                if (node.isMesh) {
+                    node.material.color.set("#00ff00");
+                    node.material.emissive.set("#002200");
+                    node.material.emissiveIntensity = 0.2;
+                    node.material.roughness = 0.3;
+                    node.material.metalness = 0.7;
+                }
+            });
+        });
+
+        // Enhanced error handling
+        model.addEventListener('model-error', (e) => {
+            console.log('Model loading failed, using fallback cube');
+            console.error('Model error details:', e);
+            
+            model.style.display = 'none';
+            modelLoaded = true;
+            hideLoading();
+            updateStatus('Using backup visualization');
+            
+            if (isTracking) {
+                fallback.setAttribute('visible', true);
+                effectRing.setAttribute('visible', true);
+                showButton();
+            }
+        });
+
+        // Click handlers with enhanced feedback
+        function handleARInteraction() {
+            console.log('AR object clicked!');
+            openForm();
+        }
+
+        model.addEventListener('click', handleARInteraction);
+        fallback.addEventListener('click', handleARInteraction);
+
+        // Enhanced scene initialization
+        document.querySelector('a-scene').addEventListener('renderstart', () => {
+            console.log('AR system initialized');
+            hideLoading();
+            updateStatus('Camera ready - Scanning for targets...');
+        });
+
+        // Show loading initially
+        showLoading();
+        
+        // Auto-hide loading after timeout
+        setTimeout(() => {
+            if (loading.style.display !== 'none') {
+                hideLoading();
+                updateStatus('Loading timeout - Try refreshing');
+            }
+        }, 10000);
+
+        // Add some interactive effects on page load
+        setTimeout(() => {
+            document.body.style.animation = 'none';
+        }, 2000);
+
+        console.log('Securinets AR Challenge System loaded successfully!');
+    </script>
+</body>
+</html>
