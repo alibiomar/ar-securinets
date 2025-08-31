@@ -487,8 +487,8 @@
 
         async function checkStage1() {
             const input = document.getElementById('input1').value.trim().toUpperCase();
-            const simpleHash = await simpleHash(input);
-            if (simpleHash === validAnswers.stage1) {
+            const simpleHash1 = await simpleHash(input);
+            if (simpleHash1 === validAnswers.stage1) {
                 showStatus(1, "Stage 1 Complete! Base64 decoded successfully.", true);
                 updateProgress(1, 33);
                 setTimeout(advanceStage, 1500);
@@ -500,8 +500,8 @@
 
         async function checkStage2() {
             const input = document.getElementById('input2').value.trim().toUpperCase();
-            const simpleHash = await simpleHash(input);
-            if (simpleHash === validAnswers.stage2) {
+            const simpleHash2 = await simpleHash(input);
+            if (simpleHash2 === validAnswers.stage2) {
                 showStatus(2, "Stage 2 Complete! Packet analyzed successfully.", true);
                 updateProgress(2, 66);
                 setTimeout(advanceStage, 1500);
