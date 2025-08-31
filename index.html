@@ -2,730 +2,134 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <title>Securinets ENIT - AR Experience</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Securinets AR</title>
     
     <!-- MindAR Dependencies -->
-    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+<script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+    "mindar-image-three":"https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"
+  }
+}
+</script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Orbitron', monospace;
-            height: 100vh;
-            overflow: hidden;
-            width: 100vw;
-            background: #000;
+            margin: 0;
+            font-family: Arial, sans-serif;
         }
 
-        /* Loading Screen */
-        #loading-screen {
+        #info {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: linear-gradient(45deg, #1a1a1a, #2d1b69);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease;
-        }
-
-        #loading-screen.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .cyber-grid {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(rgba(41, 237, 0, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(41, 237, 0, 0.1) 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: gridMove 20s linear infinite;
-        }
-
-        @keyframes gridMove {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(50px, 50px); }
-        }
-
-        .loading-spinner {
-            width: 80px;
-            height: 80px;
-            border: 4px solid transparent;
-            border-top: 4px solid #29ed00;
-            border-right: 4px solid #C400ED;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 30px;
-            filter: drop-shadow(0 0 20px #29ed00);
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .loading-title {
-            color: #29ed00;
-            font-size: 24px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            animation: neonGlow 2s ease-in-out infinite;
-            margin-bottom: 10px;
-        }
-
-        .loading-subtitle {
-            color: #C400ED;
-            font-size: 16px;
-            font-weight: 400;
-            margin-top: 15px;
-            opacity: 0.8;
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes neonGlow {
-            0%, 100% { 
-                text-shadow: 0 0 20px #29ed00, 0 0 40px #29ed00;
-            }
-            50% { 
-                text-shadow: 0 0 30px #C400ED, 0 0 50px #C400ED;
-            }
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.8; }
-            50% { opacity: 1; }
-        }
-
-        /* UI Overlay */
-        #ui-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 1000;
-        }
-
-        #info-panel {
-            position: absolute;
             top: 20px;
             left: 20px;
             right: 20px;
-            background: rgba(26, 26, 26, 0.95);
-            border: 2px solid #29ed00;
-            border-radius: 15px;
-            padding: 20px;
-            color: #29ed00;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
             text-align: center;
-            backdrop-filter: blur(10px);
-            box-shadow: 
-                0 0 30px rgba(41, 237, 0, 0.3),
-                inset 0 0 20px rgba(41, 237, 0, 0.1);
-            animation: borderGlow 3s ease-in-out infinite;
+            z-index: 1000;
         }
 
-        @keyframes borderGlow {
-            0%, 100% { border-color: #29ed00; box-shadow: 0 0 30px rgba(41, 237, 0, 0.3); }
-            50% { border-color: #C400ED; box-shadow: 0 0 30px rgba(196, 0, 237, 0.3); }
-        }
-
-        #info-panel h1 {
-            margin: 0 0 10px 0;
-            font-size: 1.2em;
-            font-weight: 900;
-            color: #C400ED;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 0 0 15px #C400ED;
-        }
-
-        #info-panel p {
-            margin: 0;
-            font-size: 0.8em;
-            opacity: 0.9;
-            font-weight: 400;
-        }
-
-        #status-indicator {
-            position: absolute;
-            bottom: 30px;
+        #status {
+            position: fixed;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(26, 26, 26, 0.9);
-            border: 2px solid #C400ED;
-            border-radius: 25px;
+            background: rgba(0,0,0,0.8);
+            color: #00ff00;
             padding: 10px 20px;
-            color: #C400ED;
-            font-size: 0.8em;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            backdrop-filter: blur(10px);
-        }
-
-        #status-indicator.active {
-            border-color: #29ed00;
-            color: #29ed00;
-            box-shadow: 0 0 20px rgba(41, 237, 0, 0.5);
-        }
-
-        /* Cyberpunk corners */
-        .corner {
-            position: absolute;
-            width: 50px;
-            height: 50px;
-            border: 3px solid #C400ED;
-            pointer-events: none;
-        }
-
-        .corner.top-left {
-            top: 40px;
-            left: 40px;
-            border-right: none;
-            border-bottom: none;
-            animation: cornerGlow 2s ease-in-out infinite;
-        }
-
-        .corner.top-right {
-            top: 40px;
-            right: 40px;
-            border-left: none;
-            border-bottom: none;
-            animation: cornerGlow 2s ease-in-out infinite 0.5s;
-        }
-
-        .corner.bottom-left {
-            bottom: 40px;
-            left: 40px;
-            border-right: none;
-            border-top: none;
-            animation: cornerGlow 2s ease-in-out infinite 1s;
-        }
-
-        .corner.bottom-right {
-            bottom: 40px;
-            right: 40px;
-            border-left: none;
-            border-top: none;
-            animation: cornerGlow 2s ease-in-out infinite 1.5s;
-        }
-
-        @keyframes cornerGlow {
-            0%, 100% { 
-                border-color: #C400ED;
-                filter: drop-shadow(0 0 10px #C400ED);
-            }
-            50% { 
-                border-color: #29ed00;
-                filter: drop-shadow(0 0 15px #29ed00);
-            }
-        }
-
-        /* AR Scene Styling */
-        a-scene {
-            display: block !important;
-            width: 100% !important;
-            height: 100% !important;
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            z-index: 1 !important;
-        }
-
-        video {
-            object-fit: cover !important;
-            height: 100vh !important;
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            #info-panel {
-                top: 10px;
-                left: 10px;
-                right: 10px;
-                padding: 15px;
-            }
-            
-            #info-panel h1 {
-                font-size: 1em;
-            }
-            
-            #info-panel p {
-                font-size: 0.7em;
-            }
-            
-            .corner {
-                width: 30px;
-                height: 30px;
-            }
-            
-            .corner.top-left, .corner.top-right {
-                top: 20px;
-            }
-            
-            .corner.bottom-left, .corner.bottom-right {
-                bottom: 20px;
-            }
-            
-            .corner.top-left, .corner.bottom-left {
-                left: 20px;
-            }
-            
-            .corner.top-right, .corner.bottom-right {
-                right: 20px;
-            }
+            border-radius: 20px;
+            z-index: 1000;
         }
     </style>
 </head>
 <body>
-    <!-- Loading Screen -->
-    <div id="loading-screen">
-        <div class="cyber-grid"></div>
-        <div class="loading-spinner"></div>
-        <div class="loading-title">SECURINETS</div>
-        <div class="loading-subtitle">Initializing MindAR Neural Network...</div>
+    <div id="info">
+        <h3>Securinets ENIT AR</h3>
+        <p>Point camera at target image</p>
     </div>
 
-    <!-- UI Overlay -->
-    <div id="ui-overlay">
-        <div id="info-panel">
-            <h1>Securinets ENIT</h1>
-            <p>Point your camera at the Securinets image marker to activate the AR experience</p>
-        </div>
+    <div id="status">Initializing...</div>
 
-        <div id="status-indicator">
-            Initializing camera...
-        </div>
-
-        <!-- Cyberpunk corner decorations -->
-        <div class="corner top-left"></div>
-        <div class="corner top-right"></div>
-        <div class="corner bottom-left"></div>
-        <div class="corner bottom-right"></div>
-    </div>
-
-    <!-- MindAR Scene -->
     <a-scene
-        mindar-image="imageTargetSrc: targets.mind; filterMinCF:0.0001; filterBeta: 0.01; showStats: false; uiLoading: no; uiError: no; uiScanning: no;"
+        mindar-image="imageTargetSrc: targets.mind;"
         color-space="sRGB"
-        renderer="colorManagement: true, physicallyCorrectLights"
         vr-mode-ui="enabled: false"
         device-orientation-permission-ui="enabled: false"
     >
-        <!-- Assets -->
         <a-assets>
-            <!-- GLB Model Asset -->
-            <a-asset-item 
-                id="cyberpunk-model" 
-                src="logo.glb"
-                crossorigin="anonymous">
-            </a-asset-item>
+            <a-asset-item id="logo" src="logo.glb"></a-asset-item>
         </a-assets>
 
-        <!-- Camera -->
-        <a-camera 
-            position="0 0 0" 
-            look-controls="enabled: false" 
-            cursor="fuse: false; rayOrigin: mouse;"
-            raycaster="far: 10000; objects: .clickable">
-        </a-camera>
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-        <!-- Image Target (anchor) -->
-        <a-entity id="main-anchor" mindar-image-target="targetIndex: 0">
-
-            <!-- Primary GLB Model -->
+        <a-entity id="target" mindar-image-target="targetIndex: 0">
+            <!-- GLB Model -->
             <a-entity
-                id="cyber-entity"
-                gltf-model="#cyberpunk-model"
-                position="0 0 0"
+                gltf-model="#logo"
+                scale="1 1 1"
                 rotation="0 0 0"
-                scale="0.8 0.8 0.8"
                 visible="false"
-                green-glow
-                securinets-controller>
+                id="model">
             </a-entity>
 
-            <!-- Fallback Geometric Model (if GLB fails) -->
-            <a-entity
-                id="fallback-cube"
+            <!-- Fallback Cube -->
+            <a-box
+                color="#00ff00"
+                scale="0.5 0.5 0.5"
                 visible="false"
-                securinets-controller>
-                
-                <!-- Central rotating cube -->
-                <a-box
-                    position="0 0.2 0"
-                    width="0.3"
-                    height="0.3"
-                    depth="0.3"
-                    color="#29ed00"
-                    material="emissive: #003300; emissiveIntensity: 0.3; transparent: true; opacity: 0.9"
-                    animation__rotate="property: rotation; to: 360 360 0; dur: 4000; loop: true; easing: linear"
-                    animation__float="property: position; to: 0 0.4 0; dur: 2000; dir: alternate; loop: true; easing: easeInOutSine">
-                </a-box>
-
-                <!-- Orbiting particles -->
-                <a-sphere
-                    position="0.6 0.2 0"
-                    radius="0.04"
-                    color="#C400ED"
-                    material="emissive: #C400ED; emissiveIntensity: 0.5"
-                    animation__orbit="property: rotation; to: 0 360 0; dur: 3000; loop: true; easing: linear">
-                </a-sphere>
-
-                <a-sphere
-                    position="-0.6 0.2 0"
-                    radius="0.04"
-                    color="#C400ED"
-                    material="emissive: #C400ED; emissiveIntensity: 0.5"
-                    animation__orbit="property: rotation; to: 0 -360 0; dur: 3000; loop: true; easing: linear">
-                </a-sphere>
-
-                <!-- Glowing ring -->
-                <a-ring
-                    position="0 0 0"
-                    radius-inner="0.5"
-                    radius-outer="0.55"
-                    color="#29ed00"
-                    material="transparent: true; opacity: 0.6; emissive: #29ed00; emissiveIntensity: 0.3"
-                    rotation="90 0 0"
-                    animation__pulse="property: scale; to: 1.2 1.2 1.2; dur: 1500; dir: alternate; loop: true; easing: easeInOutSine">
-                </a-ring>
-
-                <!-- Text label -->
-                <a-text
-                    value="SECURINETS\nENIT"
-                    position="0 -0.2 0"
-                    color="#29ed00"
-                    font="dejavu"
-                    align="center"
-                    width="6"
-                    animation__glow="property: material.color; to: #00ff41; dur: 1000; dir: alternate; loop: true">
-                </a-text>
-            </a-entity>
-
-            <!-- Particle system -->
-            <a-entity
-                id="particles"
-                visible="false"
-                particle-system="preset: dust; particleCount: 50; color: #29ed00, #C400ED; size: 0.3; maxAge: 3; positionSpread: 0.5 0.5 0.5">
-            </a-entity>
-
+                id="fallback"
+                animation="property: rotation; to: 0 360 0; loop: true; dur: 3000">
+            </a-box>
         </a-entity>
     </a-scene>
 
     <script>
+        const status = document.getElementById('status');
+        const target = document.getElementById('target');
+        const model = document.getElementById('model');
+        const fallback = document.getElementById('fallback');
         let isTracking = false;
-        let statusIndicator;
-        let arSystem;
 
-        // Enhanced Securinets controller component
-        AFRAME.registerComponent('securinets-controller', {
-            init: function () {
-                this.onTargetFound = this.onTargetFound.bind(this);
-                this.onTargetLost = this.onTargetLost.bind(this);
-                
-                // Listen to the anchor's parent for target events
-                const anchor = document.querySelector('#main-anchor');
-                if (anchor) {
-                    anchor.addEventListener('targetFound', this.onTargetFound);
-                    anchor.addEventListener('targetLost', this.onTargetLost);
-                }
-            },
+        // Target tracking
+        target.addEventListener('targetFound', () => {
+            isTracking = true;
+            status.textContent = 'Target Found!';
+            model.setAttribute('visible', true);
+        });
 
-            onTargetFound: function() {
-                if (isTracking) return;
-                
-                console.log('🎯 Securinets target detected!');
-                isTracking = true;
-                
-                // Update status
-                if (statusIndicator) {
-                    statusIndicator.textContent = 'TARGET LOCKED';
-                    statusIndicator.classList.add('active');
-                }
-                
-                // Show this entity and particles
-                this.el.setAttribute('visible', 'true');
-                const particles = document.getElementById('particles');
-                if (particles) {
-                    particles.setAttribute('visible', 'true');
-                }
-                
-                // Trigger entrance animation
-                this.el.setAttribute('animation__entrance', {
-                    property: 'scale',
-                    from: '0 0 0',
-                    to: this.el.getAttribute('scale'),
-                    dur: 800,
-                    easing: 'easeOutBounce'
-                });
-            },
+        target.addEventListener('targetLost', () => {
+            isTracking = false;
+            status.textContent = 'Scanning...';
+            model.setAttribute('visible', false);
+            fallback.setAttribute('visible', false);
+        });
 
-            onTargetLost: function() {
-                if (!isTracking) return;
-                
-                console.log('📡 Target signal lost');
-                isTracking = false;
-                
-                // Update status
-                if (statusIndicator) {
-                    statusIndicator.textContent = 'Scanning for targets...';
-                    statusIndicator.classList.remove('active');
-                }
-                
-                // Hide this entity and particles
-                this.el.setAttribute('visible', 'false');
-                const particles = document.getElementById('particles');
-                if (particles) {
-                    particles.setAttribute('visible', 'false');
-                }
+        // Model loading
+        model.addEventListener('model-loaded', () => {
+            console.log('Model loaded');
+            status.textContent = 'Ready - Point at target';
+        });
+
+        model.addEventListener('model-error', () => {
+            console.log('Model failed, using fallback');
+            model.style.display = 'none';
+            if (isTracking) {
+                fallback.setAttribute('visible', true);
             }
         });
 
-        // Enhanced green glow component for GLB models
-        AFRAME.registerComponent('green-glow', {
-            init: function () {
-                const el = this.el;
-                let materialApplied = false;
-                
-                const applyGreenMaterial = () => {
-                    if (materialApplied) return;
-                    
-                    // Wait for model to be fully loaded
-                    const model = el.getObject3D('mesh');
-                    if (!model) {
-                        console.log('🔄 Model not ready, retrying...');
-                        return;
-                    }
-                    
-                    console.log('🎨 Applying cyberpunk green material');
-                    materialApplied = true;
-                    
-                    model.traverse(function (child) {
-                        if (child.isMesh) {
-                            try {
-                                let material = child.material;
-                                
-                                // Handle array of materials
-                                if (Array.isArray(material)) {
-                                    material.forEach(mat => applyMaterialProperties(mat));
-                                } else if (material) {
-                                    applyMaterialProperties(material);
-                                }
-                            } catch (error) {
-                                console.warn('⚠️ Error processing mesh material:', error);
-                            }
-                        }
-                    });
-                    
-                    // Add holographic rotation animation
-                    el.setAttribute('animation__rotate', {
-                        property: 'rotation',
-                        to: '0 360 0',
-                        dur: 8000,
-                        loop: true,
-                        easing: 'linear'
-                    });
-                    
-                    // Add subtle scale pulse
-                    el.setAttribute('animation__pulse', {
-                        property: 'scale',
-                        to: '0.85 0.85 0.85',
-                        dur: 3000,
-                        dir: 'alternate',
-                        loop: true,
-                        easing: 'easeInOutSine'
-                    });
-                };
-                
-                const applyMaterialProperties = (material) => {
-                    if (!material) return;
-                    
-                    try {
-                        // Safely apply color
-                        if (material.color && typeof material.color.setHex === 'function') {
-                            material.color.setHex(0x29ed00);
-                        }
-                        
-                        // Handle emissive safely
-                        if (material.emissive !== undefined) {
-                            if (typeof material.emissive.setHex === 'function') {
-                                material.emissive.setHex(0x003300);
-                            } else if (material.emissive === null) {
-                                material.emissive = new THREE.Color(0x003300);
-                            }
-                        }
-                        
-                        // Handle emissive intensity
-                        if ('emissiveIntensity' in material) {
-                            material.emissiveIntensity = 0.3;
-                        }
-                        
-                        // Handle transparency
-                        if ('transparent' in material && 'opacity' in material) {
-                            material.transparent = true;
-                            material.opacity = 0.95;
-                        }
-                        
-                        // Force update
-                        material.needsUpdate = true;
-                        
-                    } catch (error) {
-                        console.warn('⚠️ Could not modify material properties:', error);
-                        
-                        // Create a completely new material as fallback
-                        const newMaterial = new THREE.MeshStandardMaterial({
-                            color: 0x29ed00,
-                            emissive: 0x003300,
-                            emissiveIntensity: 0.3,
-                            transparent: true,
-                            opacity: 0.95
-                        });
-                        
-                        // Replace the material
-                        if (material.parent && material.parent.material) {
-                            material.parent.material = newMaterial;
-                        }
-                    }
-                };
-                
-                // Event-based loading
-                el.addEventListener('model-loaded', () => {
-                    console.log('📦 Model loaded event triggered');
-                    setTimeout(applyGreenMaterial, 100);
-                });
-                
-                // Backup timers
-                setTimeout(applyGreenMaterial, 1000);
-                setTimeout(applyGreenMaterial, 2000);
-                setTimeout(applyGreenMaterial, 4000);
-            }
+        // Scene ready
+        document.querySelector('a-scene').addEventListener('renderstart', () => {
+            status.textContent = 'Camera ready - Scanning...';
         });
-
-        // App initialization
-        document.addEventListener('DOMContentLoaded', function() {
-            const loadingScreen = document.getElementById('loading-screen');
-            statusIndicator = document.getElementById('status-indicator');
-            
-            console.log('🚀 Securinets MindAR initializing...');
-            
-            // Get AR system reference
-            const sceneEl = document.querySelector('a-scene');
-            
-            sceneEl.addEventListener('renderstart', function() {
-                console.log('📹 AR camera initialized');
-                if (statusIndicator) {
-                    statusIndicator.textContent = 'Scanning for targets...';
-                }
-            });
-
-            // Handle MindAR ready event
-            sceneEl.addEventListener('arReady', function() {
-                console.log('✅ MindAR system ready');
-                
-                // Hide loading screen
-                setTimeout(() => {
-                    if (loadingScreen) {
-                        loadingScreen.classList.add('hidden');
-                        console.log('🎯 AR tracking active');
-                    }
-                }, 1000);
-            });
-
-            // Handle GLB model loading
-            const cyberEntity = document.getElementById('cyber-entity');
-            if (cyberEntity) {
-                cyberEntity.addEventListener('model-loaded', function() {
-                    console.log('✅ GLB model loaded successfully');
-                });
-                
-                cyberEntity.addEventListener('model-error', function(e) {
-                    console.warn('❌ GLB model failed to load:', e);
-                    console.log('🔄 Switching to fallback geometric model');
-                    
-                    // Hide GLB and show fallback if tracking
-                    cyberEntity.style.display = 'none';
-                    const fallback = document.getElementById('fallback-cube');
-                    if (fallback && isTracking) {
-                        fallback.setAttribute('visible', 'true');
-                    }
-                });
-            }
-
-            // Fallback loading screen timer
-            setTimeout(() => {
-                if (loadingScreen && !loadingScreen.classList.contains('hidden')) {
-                    loadingScreen.classList.add('hidden');
-                    console.log('⏰ Loading screen timeout - showing AR view');
-                    if (statusIndicator) {
-                        statusIndicator.textContent = 'Scanning for targets...';
-                    }
-                }
-            }, 5000);
-        });
-
-        // Error handling
-        window.addEventListener('error', function(e) {
-            console.error('❌ AR Error:', e.error);
-            if (statusIndicator) {
-                statusIndicator.textContent = 'System Error';
-                statusIndicator.style.color = '#ff4444';
-            }
-        });
-
-        // Performance monitoring
-        let frameCount = 0;
-        let lastFPSTime = performance.now();
-        
-        function monitorPerformance() {
-            frameCount++;
-            const now = performance.now();
-            
-            if (now - lastFPSTime >= 1000) {
-                const fps = Math.round((frameCount * 1000) / (now - lastFPSTime));
-                console.log(`📊 FPS: ${fps}`);
-                
-                if (fps < 15) {
-                    console.warn('⚠️ Performance warning: Low FPS detected');
-                }
-                
-                frameCount = 0;
-                lastFPSTime = now;
-            }
-            
-            requestAnimationFrame(monitorPerformance);
-        }
-        
-        // Start performance monitoring after a delay
-        setTimeout(() => {
-            requestAnimationFrame(monitorPerformance);
-        }, 3000);
     </script>
 </body>
 </html>
