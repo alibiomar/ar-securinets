@@ -48,6 +48,35 @@
             border-radius: 20px;
             z-index: 1000;
         }
+
+        #ar-button {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(45deg, #00ff00, #00cc00);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 15px rgba(0, 255, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        #ar-button:hover {
+            background: linear-gradient(45deg, #00cc00, #00aa00);
+            transform: translateX(-50%) scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 255, 0, 0.4);
+        }
+
+        #ar-button:active {
+            transform: translateX(-50%) scale(0.98);
+        }
     </style>
 </head>
 <body>
@@ -57,6 +86,10 @@
     </div>
 
     <div id="status">Initializing...</div>
+
+    <button id="ar-button" onclick="openForm()">
+        Join Securinets! 🚀
+    </button>
 
     <a-scene
         mindar-image="imageTargetSrc: targets.mind;"
@@ -84,8 +117,7 @@
                 rotation="180 0 0"
                 visible="false"
                 id="model"
-                    class="clickable"
-
+                class="clickable"
                 animation="property: rotation; to: 0 0 360; loop: true; dur: 3000">
             </a-entity>
 
@@ -95,6 +127,7 @@
                 scale="0.5 0.5 0.5"
                 visible="false"
                 id="fallback"
+                class="clickable"
                 animation="property: rotation; to: 0 360 0; loop: true; dur: 3000">
             </a-box>
         </a-entity>
@@ -105,13 +138,30 @@
         const target = document.getElementById('target');
         const model = document.getElementById('model');
         const fallback = document.getElementById('fallback');
+        const arButton = document.getElementById('ar-button');
         let isTracking = false;
+        let modelLoaded = false;
+
+        function openForm() {
+            window.open("https://forms.gle/bLxr4usYxnx2WHSm7", "_blank");
+        }
+
+        function showButton() {
+            if (modelLoaded && isTracking) {
+                arButton.style.display = 'block';
+            }
+        }
+
+        function hideButton() {
+            arButton.style.display = 'none';
+        }
 
         // Target tracking
         target.addEventListener('targetFound', () => {
             isTracking = true;
             status.textContent = 'Target Found!';
             model.setAttribute('visible', true);
+            showButton();
         });
 
         target.addEventListener('targetLost', () => {
@@ -119,32 +169,39 @@
             status.textContent = 'Scanning...';
             model.setAttribute('visible', false);
             fallback.setAttribute('visible', false);
+            hideButton();
         });
 
         // Model loading
         model.addEventListener('model-loaded', () => {
             console.log('Model loaded');
+            modelLoaded = true;
             status.textContent = 'Ready - Point at target';
+            showButton();
         });
-model.addEventListener('model-loaded', (e) => {
-    const obj = e.detail.model;
-    obj.traverse((node) => {
-        if (node.isMesh) {
-            node.material.color.set("#00ff00");
-        }
-    });
-});
+
+        model.addEventListener('model-loaded', (e) => {
+            const obj = e.detail.model;
+            obj.traverse((node) => {
+                if (node.isMesh) {
+                    node.material.color.set("#00ff00");
+                }
+            });
+        });
 
         model.addEventListener('model-error', () => {
             console.log('Model failed, using fallback');
             model.style.display = 'none';
+            modelLoaded = true; // Consider fallback as "loaded"
             if (isTracking) {
                 fallback.setAttribute('visible', true);
+                showButton();
             }
         });
-model.addEventListener('click', () => {
-    window.location.href = "https://forms.gle/bLxr4usYxnx2WHSm7";
-});
+
+        // Click handlers for both model and fallback
+        model.addEventListener('click', openForm);
+        fallback.addEventListener('click', openForm);
 
         // Scene ready
         document.querySelector('a-scene').addEventListener('renderstart', () => {
