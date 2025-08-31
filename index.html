@@ -443,140 +443,137 @@
         </div>
     </div>
 
-   <script>
-        let currentStage = 1;
-        const totalStages = 3;
+<script>
+    let currentStage = 1;
+    const totalStages = 3;
 
-        // Valid answers for each stage
-        const validAnswers = {
-            stage1: "615db18877a1ae23830749470cd1667333c4dba4",
-            stage2: "d1b26f24323b9c3dd75fb1cf3ba966c8dee4f119"
-        };
+    // Valid answers for each stage
+    const validAnswers = {
+        stage1: "615db18877a1ae23830749470cd1667333c4dba4",
+        stage2: "d1b26f24323b9c3dd75fb1cf3ba966c8dee4f119"
+    };
 
-        async function simpleHash(str) {
-            const encoder = new TextEncoder();
-            const data = encoder.encode(str);
-            const hashBuffer = await crypto.subtle.digest('SHA-1', data);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            console.log(hashBuffer);
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        }
+    // SHA-1 hashing function
+    async function sha1(str) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(str);
+        const hashBuffer = await crypto.subtle.digest("SHA-1", data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+    }
 
-        function showStatus(stageId, message, isSuccess = false) {
-            const statusEl = document.getElementById(`status${stageId}`);
-            statusEl.textContent = message;
-            statusEl.className = `status-message show ${isSuccess ? 'success' : 'error'}`;
-            setTimeout(() => {
-                statusEl.classList.remove('show');
-            }, 3000);
-        }
-
-        function updateProgress(stageId, percentage) {
-            document.getElementById(`progress${stageId}`).style.width = `${percentage}%`;
-        }
-
-        function advanceStage() {
-            if (currentStage < totalStages) {
-                document.getElementById(`stage${currentStage}`).classList.remove('active');
-                currentStage++;
-                setTimeout(() => {
-                    document.getElementById(`stage${currentStage}`).classList.add('active');
-                }, 300);
-            }
-        }
-
-        async function checkStage1() {
-            const input = document.getElementById('input1').value.trim().toUpperCase();
-            const simpleHash1 = await simpleHash(input);
-            if (simpleHash1 === validAnswers.stage1) {
-                showStatus(1, "Stage 1 Complete! Base64 decoded successfully.", true);
-                updateProgress(1, 33);
-                setTimeout(advanceStage, 1500);
-            } else {
-                showStatus(1, "Incorrect. Hint: This looks like Base64 encoding.");
-                updateProgress(1, 15);
-            }
-        }
-
-        async function checkStage2() {
-            const input = document.getElementById('input2').value.trim().toUpperCase();
-            const simpleHash2 = await simpleHash(input);
-            if (simpleHash2 === validAnswers.stage2) {
-                showStatus(2, "Stage 2 Complete! Packet analyzed successfully.", true);
-                updateProgress(2, 66);
-                setTimeout(advanceStage, 1500);
-            } else {
-                showStatus(2, "Wrong analysis. Hint: Check the cookie values for Base64 encoded data.");
-                updateProgress(2, 40);
-            }
-        }
-
-        // Add some matrix-like effect
-        function createMatrixRain() {
-            const chars = "01アカサタナハマヤラワガザダバパOMAR-ALIBI";
-            const matrixContainer = document.createElement('div');
-            matrixContainer.style.position = 'fixed';
-            matrixContainer.style.top = '0';
-            matrixContainer.style.left = '0';
-            matrixContainer.style.width = '100%';
-            matrixContainer.style.height = '100%';
-            matrixContainer.style.pointerEvents = 'none';
-            matrixContainer.style.zIndex = '-3';
-            matrixContainer.style.opacity = '0.1';
-            
-            for (let i = 0; i < 50; i++) {
-                const char = document.createElement('div');
-                char.textContent = chars[Math.floor(Math.random() * chars.length)];
-                char.style.position = 'absolute';
-                char.style.left = Math.random() * 100 + '%';
-                char.style.top = Math.random() * 100 + '%';
-                char.style.color = '#00ff00';
-                char.style.fontSize = Math.random() * 20 + 10 + 'px';
-                char.style.fontFamily = 'Source Code Pro, monospace';
-                char.style.animation = `matrixFall ${Math.random() * 10 + 5}s linear infinite`;
-                matrixContainer.appendChild(char);
-            }
-            
-            document.body.appendChild(matrixContainer);
-        }
-
-        // Add CSS animation for matrix effect
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes matrixFall {
-                0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
-                100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
-
-        // Initialize matrix effect
-        createMatrixRain();
-
-        // Add typing effect to cipher text
-        function typeWriter(element, text, speed = 50) {
-            element.textContent = '';
-            let i = 0;
-            const timer = setInterval(() => {
-                if (i < text.length) {
-                    element.textContent += text.charAt(i);
-                    i++;
-                } else {
-                    clearInterval(timer);
-                }
-            }, speed);
-        }
-
-        // Initialize typing effects
+    function showStatus(stageId, message, isSuccess = false) {
+        const statusEl = document.getElementById(`status${stageId}`);
+        statusEl.textContent = message;
+        statusEl.className = `status-message show ${isSuccess ? 'success' : 'error'}`;
         setTimeout(() => {
-            const cipher1 = document.getElementById('cipher1');
-            typeWriter(cipher1, cipher1.textContent, 30);
-        }, 1000);
+            statusEl.classList.remove('show');
+        }, 3000);
+    }
 
-        console.log("Securinets Challenge System Initialized");
-        console.log("Security Level: Enhanced");
-        console.log("Target acquired: Multi-stage penetration testing challenge");
-        console.log("Note: Source analysis will not reveal challenge solutions");
-    </script>
+    function updateProgress(stageId, percentage) {
+        document.getElementById(`progress${stageId}`).style.width = `${percentage}%`;
+    }
+
+    function advanceStage() {
+        if (currentStage < totalStages) {
+            document.getElementById(`stage${currentStage}`).classList.remove('active');
+            currentStage++;
+            setTimeout(() => {
+                document.getElementById(`stage${currentStage}`).classList.add('active');
+            }, 300);
+        }
+    }
+
+    async function checkStage1() {
+        const input = document.getElementById('input1').value.trim().toUpperCase();
+        const hash = await sha1(input);
+        if (hash === validAnswers.stage1) {
+            showStatus(1, "Stage 1 Complete! Base64 decoded successfully.", true);
+            updateProgress(1, 33);
+            setTimeout(advanceStage, 1500);
+        } else {
+            showStatus(1, "Incorrect. Hint: This looks like Base64 encoding.");
+            updateProgress(1, 15);
+        }
+    }
+
+    async function checkStage2() {
+        const input = document.getElementById('input2').value.trim().toUpperCase();
+        const hash = await sha1(input);
+        if (hash === validAnswers.stage2) {
+            showStatus(2, "Stage 2 Complete! Packet analyzed successfully.", true);
+            updateProgress(2, 66);
+            setTimeout(advanceStage, 1500);
+        } else {
+            showStatus(2, "Wrong analysis. Hint: Check the cookie values for Base64 encoded data.");
+            updateProgress(2, 40);
+        }
+    }
+
+    // Matrix effect
+    function createMatrixRain() {
+        const chars = "01アカサタナハマヤラワガザダバパOMAR-ALIBI";
+        const matrixContainer = document.createElement('div');
+        matrixContainer.style.position = 'fixed';
+        matrixContainer.style.top = '0';
+        matrixContainer.style.left = '0';
+        matrixContainer.style.width = '100%';
+        matrixContainer.style.height = '100%';
+        matrixContainer.style.pointerEvents = 'none';
+        matrixContainer.style.zIndex = '-3';
+        matrixContainer.style.opacity = '0.1';
+        
+        for (let i = 0; i < 50; i++) {
+            const char = document.createElement('div');
+            char.textContent = chars[Math.floor(Math.random() * chars.length)];
+            char.style.position = 'absolute';
+            char.style.left = Math.random() * 100 + '%';
+            char.style.top = Math.random() * 100 + '%';
+            char.style.color = '#00ff00';
+            char.style.fontSize = Math.random() * 20 + 10 + 'px';
+            char.style.fontFamily = 'Source Code Pro, monospace';
+            char.style.animation = `matrixFall ${Math.random() * 10 + 5}s linear infinite`;
+            matrixContainer.appendChild(char);
+        }
+        
+        document.body.appendChild(matrixContainer);
+    }
+
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes matrixFall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+
+    createMatrixRain();
+
+    function typeWriter(element, text, speed = 50) {
+        element.textContent = '';
+        let i = 0;
+        const timer = setInterval(() => {
+            if (i < text.length) {
+                element.textContent += text.charAt(i);
+                i++;
+            } else {
+                clearInterval(timer);
+            }
+        }, speed);
+    }
+
+    setTimeout(() => {
+        const cipher1 = document.getElementById('cipher1');
+        typeWriter(cipher1, cipher1.textContent, 30);
+    }, 1000);
+
+    console.log("Securinets Challenge System Initialized");
+    console.log("Security Level: Enhanced");
+    console.log("Target acquired: Multi-stage penetration testing challenge");
+    console.log("Note: Source analysis will not reveal challenge solutions");
+</script>
+
 </body>
 </html>
