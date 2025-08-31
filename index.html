@@ -52,7 +52,7 @@
 </head>
 <body>
     <div id="info">
-        <h3>Securinets ENIT AR</h3>
+        <h3>Securinets ENIT</h3>
         <p>Point camera at target image</p>
     </div>
 
@@ -68,16 +68,24 @@
             <a-asset-item id="logo" src="logo.glb"></a-asset-item>
         </a-assets>
 
-        <a-camera position="0 0 0" look-controls="enabled: true"></a-camera>
+<a-camera position="0 0 0" look-controls="enabled: true">
+  <a-cursor
+    raycaster="objects: .clickable"
+    fuse="false"
+    material="color: white; shader: flat">
+  </a-cursor>
+</a-camera>
 
         <a-entity id="target" mindar-image-target="targetIndex: 0">
             <!-- GLB Model -->
             <a-entity
                 gltf-model="#logo"
                 scale="1 1 1"
-                rotation="-180 0 0"
+                rotation="180 0 0"
                 visible="false"
                 id="model"
+                    class="clickable"
+
                 animation="property: rotation; to: 0 0 360; loop: true; dur: 3000">
             </a-entity>
 
@@ -126,6 +134,9 @@
                 fallback.setAttribute('visible', true);
             }
         });
+model.addEventListener('click', () => {
+    window.location.href = "https://forms.gle/bLxr4usYxnx2WHSm7";
+});
 
         // Scene ready
         document.querySelector('a-scene').addEventListener('renderstart', () => {
