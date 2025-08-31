@@ -526,25 +526,49 @@
                             if (child.isMesh && child.material) {
                                 const original = child.material;
                                 
-                                // Apply green cyberpunk colors
-                                if (original.color) {
-                                    original.color.setHex(0x29ed00);
+                                try {
+                                    // Safely apply green cyberpunk colors
+                                    if (original.color && typeof original.color.setHex === 'function') {
+                                        original.color.setHex(0x29ed00);
+                                    }
+                                    
+                                    // Handle emissive property safely
+                                    if (original.emissive && typeof original.emissive.setHex === 'function') {
+                                        original.emissive.setHex(0x003300);
+                                    } else if (original.emissive === undefined) {
+                                        // Create emissive property if it doesn't exist
+                                        original.emissive = new THREE.Color(0x003300);
+                                    }
+                                    
+                                    // Handle emissive intensity
+                                    if ('emissiveIntensity' in original) {
+                                        original.emissiveIntensity = 0.4;
+                                    }
+                                    
+                                    // Handle transparency
+                                    if ('transparent' in original) {
+                                        original.transparent = true;
+                                        original.opacity = 0.95;
+                                    }
+                                    
+                                    // Force material update
+                                    original.needsUpdate = true;
+                                    
+                                } catch (error) {
+                                    console.warn('⚠️ Could not apply material properties to mesh:', error);
+                                    
+                                    // Fallback: try to replace with a basic green material
+                                    try {
+                                        const greenMaterial = new THREE.MeshBasicMaterial({
+                                            color: 0x29ed00,
+                                            transparent: true,
+                                            opacity: 0.9
+                                        });
+                                        child.material = greenMaterial;
+                                    } catch (fallbackError) {
+                                        console.warn('⚠️ Fallback material application failed:', fallbackError);
+                                    }
                                 }
-                                
-                                if (original.emissive) {
-                                    original.emissive.setHex(0x003300);
-                                }
-                                
-                                if (original.hasOwnProperty('emissiveIntensity')) {
-                                    original.emissiveIntensity = 0.4;
-                                }
-                                
-                                if (original.hasOwnProperty('transparent')) {
-                                    original.transparent = true;
-                                    original.opacity = 0.95;
-                                }
-                                
-                                original.needsUpdate = true;
                             }
                         });
                         
